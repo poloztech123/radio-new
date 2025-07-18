@@ -217,15 +217,15 @@ export function RadioPage() {
                                 </CardHeader>
                                 <CardContent className="flex flex-col items-center justify-center gap-8">
                                     <div className="relative w-52 h-52">
-                                        <div className={`absolute inset-0 bg-primary/20 rounded-full transition-transform duration-500 ${isPlaying ? 'animate-pulse scale-110' : 'scale-100'}`}></div>
+                                        <div className={`absolute inset-0 bg-primary/20 rounded-lg transition-transform duration-500 ${isPlaying ? 'animate-pulse scale-110' : 'scale-100'}`}></div>
                                         <Button
                                             onClick={togglePlayPause}
                                             variant="outline"
                                             size="icon"
-                                            className="relative z-10 w-52 h-52 rounded-full bg-background/50 hover:bg-background/80 border-4 border-primary shadow-lg transition-transform hover:scale-105"
+                                            className="relative z-10 w-52 h-52 rounded-lg hover:bg-background/80 border-4 border-primary shadow-lg transition-transform hover:scale-105 flex items-center justify-center"
                                             aria-label={isPlaying ? 'Pause' : 'Play'}
                                         >
-                                            {isPlaying ? <Pause className="w-40 h-40 text-primary" /> : <Play className="w-40 h-40 text-primary" />}
+                                            {isPlaying ? <Pause className="w-40 h-40 text-primary" /> : <Play className="w-40 h-40 text-primary fill-primary" />}
                                         </Button>
                                     </div>
                                     <div className="w-full max-w-xs space-y-4">
