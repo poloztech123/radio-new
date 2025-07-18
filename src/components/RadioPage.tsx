@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
@@ -196,9 +197,9 @@ export function RadioPage() {
                         </Button>
                     </header>
                     <div className="relative w-full flex justify-center mb-10">
-                        <div className="relative w-[100px] h-[100px] rounded-lg overflow-hidden bg-card/70 border border-border/50 shadow-lg shadow-black/20">
+                        <div className="relative w-[300px] h-[300px] rounded-lg overflow-hidden bg-card/70 border border-border/50 shadow-lg shadow-black/20">
                             <Image
-                                src="https://mikedeeradio.com/img/MIKE DEE RADIO 1.jpg"
+                                src="https://mikedeeradio.com/img/MIKE%20DEE%20RADIO%201.jpg"
                                 alt="Logo"
                                 fill
                                 className="object-cover opacity-80"
@@ -224,7 +225,7 @@ export function RadioPage() {
                                             className="relative z-10 w-52 h-52 rounded-full bg-background/50 hover:bg-background/80 border-4 border-primary shadow-lg transition-transform hover:scale-105"
                                             aria-label={isPlaying ? 'Pause' : 'Play'}
                                         >
-                                            {isPlaying ? <Pause className="w-24 h-24 text-primary" /> : <Play className="w-24 h-24 text-primary" />}
+                                            {isPlaying ? <Pause className="w-32 h-32 text-primary" /> : <Play className="w-32 h-32 text-primary" />}
                                         </Button>
                                     </div>
                                     <div className="w-full max-w-xs space-y-4">
@@ -248,7 +249,7 @@ export function RadioPage() {
                                     <Info className="w-5 h-5 text-primary"/>
                                 </div>
                                 <div className="whitespace-nowrap ml-8">
-                                    <span className="inline-block text-primary-foreground font-semibold animate-marquee-slow hover:pause">
+                                    <span className="inline-block text-xl text-primary-foreground font-semibold animate-marquee-slow hover:pause">
                                         {AD_TEXT.repeat(3)}
                                     </span>
                                 </div>
@@ -306,7 +307,7 @@ export function RadioPage() {
                     to { transform: translateX(-100%); }
                 }
                 .animate-marquee-slow {
-                    animation: marquee-slow 550s linear infinite;
+                    animation: marquee-slow 150s linear infinite;
                 }
                 .pause:hover {
                     animation-play-state: paused;
