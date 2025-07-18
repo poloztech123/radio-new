@@ -15,7 +15,7 @@ const STREAM_URL = "http://stream.radiojar.com/9nesgw002hcwv";
 
 const INITIAL_SCHEDULE = {
    Monday: [
- { time: "5am - 11am", show: "The Sunrise Sessions" },
+ { time: "5am - 11am", show: "Morning Burster" },
  { time: "11am - 3pm", show: "The Work Flow" },
  { time: "3pm - 8pm", show: "Township Tunes" },
  { time: "8pm - 9pm", show: "The World News Hour" },
@@ -26,7 +26,7 @@ const INITIAL_SCHEDULE = {
 
  ],
   Tuesday: [
-    { time: "5am - 11am", show: "The Sunrise Sessions" },
+    { time: "5am - 11am", show: "Morning Burster" },
     { time: "11am - 3pm", show: "The Work Flow" },
     { time: "3pm - 8pm", show: "Township Tunes" },
     { time: "8pm - 9pm", show: "The World News Hour" },
@@ -34,7 +34,7 @@ const INITIAL_SCHEDULE = {
     { time: "10pm - 5am", show: "Love Jungle" }
   ],
   Wednesday: [
-    { time: "5am - 11am", show: "The Sunrise Sessions" },
+    { time: "5am - 11am", show: "Morning Burster" },
     { time: "11am - 3pm", show: "The Work Flow" },
     { time: "3pm - 8pm", show: "Township Tunes" },
     { time: "8pm - 9pm", show: "The World News Hour" },
@@ -42,7 +42,7 @@ const INITIAL_SCHEDULE = {
     { time: "10pm - 5am", show: "Love Jungle" }
   ],
   Thursday: [
-    { time: "5am - 11am", show: "The Sunrise Sessions" },
+    { time: "5am - 11am", show: "Morning Burster" },
     { time: "11am - 3pm", show: "The Work Flow" },
     { time: "3pm - 8pm", show: "Township Tunes" },
     { time: "8pm - 9pm", show: "The World News Hour" },
@@ -51,7 +51,7 @@ const INITIAL_SCHEDULE = {
   ],
 
   Friday: [
-    { time: "5am - 11am", show: "The Sunrise Sessions" },
+    { time: "5am - 11am", show: "Morning Burster" },
  { time: "11am - 3pm", show: "The Work Flow" },
  { time: "3pm - 8pm", show: "Township Tunes" },
  { time: "8pm - 9pm", show: "The World News Hour" },
