@@ -225,7 +225,7 @@ export function RadioPage() {
                                             className="relative z-10 w-52 h-52 rounded-full bg-background/50 hover:bg-background/80 border-4 border-primary shadow-lg transition-transform hover:scale-105"
                                             aria-label={isPlaying ? 'Pause' : 'Play'}
                                         >
-                                            {isPlaying ? <Pause className="w-32 h-32 text-primary" /> : <Play className="w-32 h-32 text-primary" />}
+                                            {isPlaying ? <Pause className="w-40 h-40 text-primary" /> : <Play className="w-40 h-40 text-primary" />}
                                         </Button>
                                     </div>
                                     <div className="w-full max-w-xs space-y-4">
