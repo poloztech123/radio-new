@@ -197,7 +197,7 @@ export function RadioPage() {
                         </Button>
                     </header>
                     <div className="relative w-full flex justify-center mb-10">
-                        <div className="relative w-[300px] h-[300px] rounded-lg overflow-hidden bg-card/70 border border-border/50 shadow-lg shadow-black/20">
+                        <div className="relative w-[100px] h-[100px] rounded-lg overflow-hidden bg-card/70 border border-border/50 shadow-lg shadow-black/20">
                             <Image
                                 src="https://mikedeeradio.com/img/MIKE%20DEE%20RADIO%201.jpg"
                                 alt="Logo"
@@ -307,7 +307,7 @@ export function RadioPage() {
                     to { transform: translateX(-100%); }
                 }
                 .animate-marquee-slow {
-                    animation: marquee-slow 150s linear infinite;
+                    animation: marquee-slow 550s linear infinite;
                 }
                 .pause:hover {
                     animation-play-state: paused;
