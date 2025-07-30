@@ -197,7 +197,7 @@ export function RadioPage() {
                         </Button>
                     </header>
                     <div className="relative w-full flex justify-center mb-10">
-                        <div className="relative w-[100px] h-[100px] rounded-lg overflow-hidden bg-card/70 border border-border/50 shadow-lg shadow-black/20">
+                         <div className="relative w-[100px] h-[100px] rounded-lg overflow-hidden bg-card/70 border border-border/50 shadow-lg shadow-black/20">
                             <Image
                                 src="https://mikedeeradio.com/img/MIKE%20DEE%20RADIO%201.jpg"
                                 alt="Logo"
@@ -205,6 +205,17 @@ export function RadioPage() {
                                 className="object-cover opacity-80"
                                 data-ai-hint="radio banner"
                             />
+                        </div>
+                    </div>
+
+                    <div className="relative w-full overflow-hidden bg-card/70 backdrop-blur-lg rounded-lg p-3 border border-border/50 shadow-lg shadow-black/20 mb-8">
+                        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <Info className="w-5 h-5 text-primary"/>
+                        </div>
+                        <div className="whitespace-nowrap ml-8">
+                            <span className="inline-block text-2xl text-primary-foreground font-semibold animate-marquee-slow hover:pause">
+                                {AD_TEXT.repeat(3)}
+                            </span>
                         </div>
                     </div>
 
@@ -243,17 +254,6 @@ export function RadioPage() {
                                     </div>
                                 </CardContent>
                             </Card>
-
-                            <div className="relative w-full overflow-hidden bg-card/70 backdrop-blur-lg rounded-lg p-3 border border-border/50 shadow-lg shadow-black/20">
-                                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                    <Info className="w-5 h-5 text-primary"/>
-                                </div>
-                                <div className="whitespace-nowrap ml-8">
-                                    <span className="inline-block text-xl text-primary-foreground font-semibold animate-marquee-slow hover:pause">
-                                        {AD_TEXT.repeat(3)}
-                                    </span>
-                                </div>
-                            </div>
                         </div>
 
                         <div className="lg:col-span-2">
@@ -307,7 +307,7 @@ export function RadioPage() {
                     to { transform: translateX(-100%); }
                 }
                 .animate-marquee-slow {
-                    animation: marquee-slow 550s linear infinite;
+                    animation: marquee-slow 150s linear infinite;
                 }
                 .pause:hover {
                     animation-play-state: paused;
