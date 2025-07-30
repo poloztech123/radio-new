@@ -307,7 +307,7 @@ export function RadioPage() {
                     to { transform: translateX(-100%); }
                 }
                 .animate-marquee-slow {
-                    animation: marquee-slow 150s linear infinite;
+                    animation: marquee-slow 450s linear infinite;
                 }
                 .pause:hover {
                     animation-play-state: paused;
