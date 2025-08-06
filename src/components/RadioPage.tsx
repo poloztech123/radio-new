@@ -182,7 +182,7 @@ export function RadioPage() {
                     <div className="absolute left-0 right-0 top-[-10%] h-[1000px] w-[1000px] rounded-full bg-[radial-gradient(circle_400px_at_50%_300px,#f59e0b33,transparent)]"></div>
                 </div>
                 
-                <main className="container mx-auto p-4 sm:p-6 lg:p-8">
+                <main className="p-4 sm:p-6 lg:p-8">
                     <header className="flex justify-between items-center mb-6">
                         <div className="flex items-center gap-3">
                             <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center border border-primary/30">
@@ -197,7 +197,7 @@ export function RadioPage() {
                         </Button>
                     </header>
                     <div className="relative w-full flex justify-center mb-10">
-                         <div className="relative w-[100px] h-[100px] rounded-lg overflow-hidden bg-card/70 border border-border/50 shadow-lg shadow-black/20">
+                        <div className="relative w-[300px] h-[300px] rounded-lg overflow-hidden bg-card/70 border border-border/50 shadow-lg shadow-black/20">
                             <Image
                                 src="https://mikedeeradio.com/img/MIKE%20DEE%20RADIO%201.jpg"
                                 alt="Logo"
@@ -207,7 +207,6 @@ export function RadioPage() {
                             />
                         </div>
                     </div>
-
                     <div className="relative w-full overflow-hidden bg-card/70 backdrop-blur-lg rounded-lg p-3 border border-border/50 shadow-lg shadow-black/20 mb-8">
                         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                             <Info className="w-5 h-5 text-primary"/>
@@ -236,7 +235,7 @@ export function RadioPage() {
                                             className="relative z-10 w-52 h-52 rounded-full hover:bg-background/80 border-4 border-primary shadow-lg transition-transform hover:scale-105 flex items-center justify-center"
                                             aria-label={isPlaying ? 'Pause' : 'Play'}
                                         >
-                                            {isPlaying ? <Pause className="w-40 h-40 text-primary" /> : <Play className="w-40 h-40 text-primary fill-primary" />}
+                                            {isPlaying ? <Pause className="w-40 h-40 text-primary" /> : <Play className="w-40 h-40 text-primary" />}
                                         </Button>
                                     </div>
                                     <div className="w-full max-w-xs space-y-4">
@@ -307,7 +306,7 @@ export function RadioPage() {
                     to { transform: translateX(-100%); }
                 }
                 .animate-marquee-slow {
-                    animation: marquee-slow 450s linear infinite;
+                    animation: marquee-slow 150s linear infinite;
                 }
                 .pause:hover {
                     animation-play-state: paused;
