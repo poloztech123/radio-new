@@ -1,4 +1,5 @@
 
+
 "use client"
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
@@ -78,18 +79,30 @@ const INITIAL_SCHEDULE = {
 
 type Schedule = typeof INITIAL_SCHEDULE;
 
+const PictureInPictureIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+        <path d="M14.5 9.5 21 3m0 6V3h-6" />
+        <path d="M3 3h18v18H3z" />
+        <path d="m11 15-5 5" />
+    </svg>
+);
+
+
 export function RadioPage() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [volume, setVolume] = useState(0.5);
     const [schedule, setSchedule] = useState<Schedule>(INITIAL_SCHEDULE);
     const [currentDay, setCurrentDay] = useState('');
     const [isShareSupported, setIsShareSupported] = useState(false);
+    const [isPipSupported, setIsPipSupported] = useState(false);
+    const [isPipActive, setIsPipActive] = useState(false);
     const { toast } = useToast();
 
-    const audioRef = useRef<HTMLAudioElement>(null);
+    const videoRef = useRef<HTMLVideoElement>(null);
 
     useEffect(() => {
         setIsShareSupported(!!(typeof window !== 'undefined' && navigator.share));
+        setIsPipSupported('pictureInPictureEnabled' in document && document.pictureInPictureEnabled);
         
         const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
         const today = new Date();
@@ -98,12 +111,29 @@ export function RadioPage() {
         setCurrentDay(currentDayName.toLowerCase());
         
         console.log("Current Day:", currentDayName);
+
+        const video = videoRef.current;
+        const onEnterPip = () => setIsPipActive(true);
+        const onLeavePip = () => setIsPipActive(false);
+
+        if (video) {
+            video.addEventListener('enterpictureinpicture', onEnterPip);
+            video.addEventListener('leavepictureinpicture', onLeavePip);
+        }
+
+        return () => {
+             if (video) {
+                video.removeEventListener('enterpictureinpicture', onEnterPip);
+                video.removeEventListener('leavepictureinpicture', onLeavePip);
+            }
+        }
+
     }, []);
 
 
     useEffect(() => {
-        if (audioRef.current) {
-            audioRef.current.volume = volume;
+        if (videoRef.current) {
+            videoRef.current.volume = volume;
         }
     }, [volume]);
 
@@ -143,11 +173,11 @@ export function RadioPage() {
     };
 
     const togglePlayPause = () => {
-        if (audioRef.current) {
+        if (videoRef.current) {
             if (isPlaying) {
-                audioRef.current.pause();
+                videoRef.current.pause();
             } else {
-                audioRef.current.play().catch(error => {
+                videoRef.current.play().catch(error => {
                     console.error("Playback failed:", error);
                     toast({
                         title: "Playback Error",
@@ -163,8 +193,59 @@ export function RadioPage() {
     const handleVolumeChange = (value: number[]) => {
         const newVolume = value[0];
         setVolume(newVolume);
-        if (audioRef.current) {
-            audioRef.current.volume = newVolume;
+        if (videoRef.current) {
+            videoRef.current.volume = newVolume;
+        }
+    };
+    
+    const togglePictureInPicture = async () => {
+        if (!isPipSupported || !videoRef.current) return;
+
+        try {
+            if (document.pictureInPictureElement) {
+                await document.exitPictureInPicture();
+            } else {
+                 const canvas = document.createElement('canvas');
+                 canvas.width = 512;
+                 canvas.height = 512;
+                 const ctx = canvas.getContext('2d');
+                 if(ctx) {
+                    ctx.fillStyle = 'black';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    const logo = new window.Image();
+                    logo.src = "https://mikedeeradio.com/img/MIKE%20DEE%20RADIO%201.jpg";
+                    logo.onload = () => {
+                        ctx.drawImage(logo, 56, 56, 400, 400);
+                    }
+                 }
+                 const stream = canvas.captureStream();
+                 const videoTrack = stream.getVideoTracks()[0];
+                 
+                 const audioStream = await fetch(STREAM_URL).then(r => r.body);
+                 const audioContext = new AudioContext();
+                 const audioSource = audioContext.createMediaStreamSource(new MediaStream(videoRef.current.srcObject as MediaStream));
+                 const mediaStreamDestination = audioContext.createMediaStreamDestination();
+                 audioSource.connect(mediaStreamDestination);
+
+                 const combinedStream = new MediaStream([
+                     videoTrack,
+                     mediaStreamDestination.stream.getAudioTracks()[0]
+                 ]);
+
+                 const pipVideo = document.createElement('video');
+                 pipVideo.srcObject = combinedStream;
+                 pipVideo.muted = true;
+                 pipVideo.play();
+                 
+                 await videoRef.current.requestPictureInPicture();
+            }
+        } catch (error) {
+            console.error("PiP failed:", error);
+            toast({
+                title: "Picture-in-Picture Error",
+                description: "Could not enter Picture-in-Picture mode.",
+                variant: "destructive",
+            });
         }
     };
 
@@ -176,7 +257,7 @@ export function RadioPage() {
 
     return (
         <>
-            <audio ref={audioRef} src={STREAM_URL} preload="none" onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} />
+            <video ref={videoRef} src={STREAM_URL} preload="none" onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} style={{ display: 'none' }} />
             <div className="relative min-h-screen w-full overflow-hidden bg-background text-foreground">
                 <div className="absolute inset-0 -z-10 h-full w-full bg-slate-950 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px]">
                     <div className="absolute left-0 right-0 top-[-10%] h-[1000px] w-[1000px] rounded-full bg-[radial-gradient(circle_400px_at_50%_300px,#f59e0b33,transparent)]"></div>
@@ -192,9 +273,16 @@ export function RadioPage() {
                                 Mike Dee <span className="text-primary">Radio</span>
                             </h1>
                         </div>
-                        <Button onClick={handleShare} variant="outline" size="icon" className="shrink-0" aria-label="Share App">
-                           {isShareSupported ? <Share2 className="h-5 w-5" /> : <Copy className="h-5 w-5" />}
-                        </Button>
+                        <div className="flex items-center gap-2">
+                            {isPipSupported && (
+                                <Button onClick={togglePictureInPicture} variant="outline" size="icon" className="shrink-0" aria-label="Toggle Picture-in-Picture">
+                                    <PictureInPictureIcon className={`h-5 w-5 ${isPipActive ? "text-primary" : ""}`} />
+                                </Button>
+                            )}
+                            <Button onClick={handleShare} variant="outline" size="icon" className="shrink-0" aria-label="Share App">
+                               {isShareSupported ? <Share2 className="h-5 w-5" /> : <Copy className="h-5 w-5" />}
+                            </Button>
+                        </div>
                     </header>
                     <div className="relative w-full flex justify-center mb-10">
                         <div className="relative w-[300px] h-[300px] rounded-lg overflow-hidden bg-card/70 border border-border/50 shadow-lg shadow-black/20">
