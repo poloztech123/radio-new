@@ -306,8 +306,8 @@ export function RadioPage() {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        <div className="lg:col-span-1 flex flex-col gap-8">
+                    <div className="flex flex-col gap-8">
+                        <div className="w-full">
                             <Card className="bg-card/70 backdrop-blur-lg border-border/50 shadow-2xl shadow-black/20">
                                 <CardHeader className="text-center">
                                     <CardTitle className="font-headline text-3xl">Making Life Interesting</CardTitle>
@@ -343,7 +343,7 @@ export function RadioPage() {
                             </Card>
                         </div>
 
-                        <div className="lg:col-span-2">
+                        <div className="w-full">
                             <Card className="bg-card/70 backdrop-blur-lg border-border/50 shadow-2xl shadow-black/20 h-full">
                                 <CardHeader>
                                     <div className="flex items-center gap-3">
