@@ -97,42 +97,36 @@ export function RadioPage() {
     const [isPipActive, setIsPipActive] = useState(false);
     const { toast } = useToast();
 
+    const audioRef = useRef<HTMLAudioElement>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
+    const canvasRef = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
         setIsShareSupported(!!(typeof window !== 'undefined' && navigator.share));
-        setIsPipSupported('pictureInPictureEnabled' in document && document.pictureInPictureEnabled);
+        setIsPipSupported(typeof document !== 'undefined' && 'pictureInPictureEnabled' in document && document.pictureInPictureEnabled);
         
         const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-        const today = new Date();
         const dayIndex = new Date().getDay();
         const currentDayName = days[dayIndex];
         setCurrentDay(currentDayName.toLowerCase());
-        
-        console.log("Current Day:", currentDayName);
 
         const video = videoRef.current;
-        const onEnterPip = () => setIsPipActive(true);
-        const onLeavePip = () => setIsPipActive(false);
-
         if (video) {
+            const onEnterPip = () => setIsPipActive(true);
+            const onLeavePip = () => setIsPipActive(false);
             video.addEventListener('enterpictureinpicture', onEnterPip);
             video.addEventListener('leavepictureinpicture', onLeavePip);
-        }
 
-        return () => {
-             if (video) {
+            return () => {
                 video.removeEventListener('enterpictureinpicture', onEnterPip);
                 video.removeEventListener('leavepictureinpicture', onLeavePip);
-            }
+            };
         }
-
     }, []);
 
-
     useEffect(() => {
-        if (videoRef.current) {
-            videoRef.current.volume = volume;
+        if (audioRef.current) {
+            audioRef.current.volume = volume;
         }
     }, [volume]);
 
@@ -172,11 +166,11 @@ export function RadioPage() {
     };
 
     const togglePlayPause = () => {
-        if (videoRef.current) {
+        if (audioRef.current) {
             if (isPlaying) {
-                videoRef.current.pause();
+                audioRef.current.pause();
             } else {
-                videoRef.current.play().catch(error => {
+                audioRef.current.play().catch(error => {
                     console.error("Playback failed:", error);
                     toast({
                         title: "Playback Error",
@@ -192,49 +186,47 @@ export function RadioPage() {
     const handleVolumeChange = (value: number[]) => {
         const newVolume = value[0];
         setVolume(newVolume);
-        if (videoRef.current) {
-            videoRef.current.volume = newVolume;
+        if (audioRef.current) {
+            audioRef.current.volume = newVolume;
         }
     };
     
     const togglePictureInPicture = async () => {
-        if (!isPipSupported || !videoRef.current) return;
+        if (!isPipSupported || !videoRef.current || !canvasRef.current || !audioRef.current) return;
 
         try {
             if (document.pictureInPictureElement) {
                 await document.exitPictureInPicture();
             } else {
-                 const canvas = document.createElement('canvas');
-                 canvas.width = 512;
-                 canvas.height = 512;
+                 const canvas = canvasRef.current;
                  const ctx = canvas.getContext('2d');
                  if(ctx) {
                     ctx.fillStyle = 'black';
                     ctx.fillRect(0, 0, canvas.width, canvas.height);
                     const logo = new window.Image();
+                    logo.crossOrigin = "Anonymous";
                     logo.src = "https://mikedeeradio.com/img/MIKE%20DEE%20RADIO%201.jpg";
                     logo.onload = () => {
                         ctx.drawImage(logo, 56, 56, 400, 400);
                     }
                  }
-                 const stream = canvas.captureStream();
-                 const videoTrack = stream.getVideoTracks()[0];
                  
-                 const audioStream = await fetch(STREAM_URL).then(r => r.body);
-                 const audioContext = new AudioContext();
-                 const audioSource = audioContext.createMediaStreamSource(new MediaStream(videoRef.current.srcObject as MediaStream));
-                 const mediaStreamDestination = audioContext.createMediaStreamDestination();
-                 audioSource.connect(mediaStreamDestination);
+                 const videoStream = canvas.captureStream();
+                 
+                 // This part is tricky. We need an AudioContext to merge the audio stream
+                 // This approach may have limitations across browsers
+                 const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+                 const source = audioContext.createMediaElementSource(audioRef.current);
+                 const destination = audioContext.createMediaStreamDestination();
+                 source.connect(destination);
 
-                 const combinedStream = new MediaStream([
-                     videoTrack,
-                     mediaStreamDestination.stream.getAudioTracks()[0]
-                 ]);
+                 const audioTrack = destination.stream.getAudioTracks()[0];
+                 const videoTrack = videoStream.getVideoTracks()[0];
+                 
+                 const combinedStream = new MediaStream([videoTrack, audioTrack]);
 
-                 const pipVideo = document.createElement('video');
-                 pipVideo.srcObject = combinedStream;
-                 pipVideo.muted = true;
-                 pipVideo.play();
+                 videoRef.current.srcObject = combinedStream;
+                 videoRef.current.play();
                  
                  await videoRef.current.requestPictureInPicture();
             }
@@ -256,7 +248,10 @@ export function RadioPage() {
 
     return (
         <>
-            <video ref={videoRef} src={STREAM_URL} preload="none" onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} style={{ display: 'none' }} />
+            <audio ref={audioRef} src={STREAM_URL} crossOrigin="anonymous" preload="none" onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} />
+            <video ref={videoRef} muted style={{ display: 'none' }} />
+            <canvas ref={canvasRef} width="512" height="512" style={{ display: 'none' }}></canvas>
+            
             <div className="relative min-h-screen w-full overflow-hidden bg-background text-foreground">
                 <div className="absolute inset-0 -z-10 h-full w-full bg-slate-950 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px]">
                     <div className="absolute left-0 right-0 top-[-10%] h-[1000px] w-[1000px] rounded-full bg-[radial-gradient(circle_400px_at_50%_300px,#f59e0b33,transparent)]"></div>
@@ -284,12 +279,13 @@ export function RadioPage() {
                         </div>
                     </header>
                     <div className="relative w-full flex justify-center mb-10">
-                        <div className="relative w-[300px] h-[300px] rounded-lg overflow-hidden bg-card/70 border border-border/50 shadow-lg shadow-black/20">
+                        <div className="relative w-[100px] h-[100px] rounded-lg overflow-hidden bg-card/70 border border-border/50 shadow-lg shadow-black/20">
                             <Image
                                 src="https://mikedeeradio.com/img/MIKE%20DEE%20RADIO%201.jpg"
                                 alt="Logo"
                                 fill
                                 className="object-cover opacity-80"
+								priority
                                 data-ai-hint="radio banner"
                             />
                         </div>
@@ -393,7 +389,7 @@ export function RadioPage() {
                     to { transform: translateX(-100%); }
                 }
                 .animate-marquee-slow {
-                    animation: marquee-slow 150s linear infinite;
+                    animation: marquee-slow 550s linear infinite;
                 }
                 .pause:hover {
                     animation-play-state: paused;
