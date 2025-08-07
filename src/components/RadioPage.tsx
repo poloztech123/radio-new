@@ -7,11 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Play, Pause, Volume2, Volume1, VolumeX, Radio, CalendarDays, Music, Info, Share2, Copy } from "lucide-react";
+import { Play, Pause, Volume2, Volume1, VolumeX, Radio, CalendarDays, Music, Info, Share2, Copy, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Image from 'next/image';
 
-const AD_TEXT = "Chali Royal Guest House is Jinja's home away from home, Ghokale Rd  ** Akwi fashions brings the best out of your looks with their passion in design. Iganga road Jinja city  **  Magnetic looks saloon explains your right to look elegant. Lady Alice Mulooki Rd Jinja  **  HARED Petroleum has the best pure fuel and oil for your engine and with best services all across the country  **  Salongo and Sons electronics for all original electronics on Main Street Opp former Crane Bank. They do deliveries  **  Contact Mike Dee for your radio set up, Website design, App development, Music instrument lessons, DJ lessons, presentation lessons  **  For graphics design lessons and website development lessons contact us at Mike Dee Radio  **  Contact Mike Dee Radio for any coverage and product marketing. Let's help you see results instantly  **  Send your info that you would like to be aired on our WhatsApp 075 666 04 05. Opinions, regards, debates e.t.c  **  Listen to the radio for details.  ";
+const AD_TEXT = "Chali Royal Guest House is Jinja's home away from home, Ghokale Rd  ** Akwi fashions brings the best out of your looks with their passion in design. Iganga road Jinja city  **  Magnetic looks saloon explains your right to look elegant. Lady Alice Mulooki Rd Jinja  **  HARED Petroleum has the best pure fuel and oil for your engine and with best services all across the country  **  Salongo and Sons electronics for all original electronics on Main Street Opp former Crane Bank. They do deliveries  **  Contact Mike Dee for your radio set up, Website design, App development, Music instrument lessons, DJ lessons, presentation lessons  **  For graphics design lessons and website development lessons contact us at Mike Dee Radio  **  Contact Mike Dee for any coverage and product marketing. Let's help you see results instantly  **  Send your info that you would like to be aired on our WhatsApp 075 666 04 05. Opinions, regards, debates e.t.c  **  Listen to the radio for details.  ";
 const STREAM_URL = "https://stream.radiojar.com/9nesgw002hcwv";
 
 const INITIAL_SCHEDULE = {
@@ -95,7 +95,7 @@ export function RadioPage() {
     const [isShareSupported, setIsShareSupported] = useState(false);
     const [isPipSupported, setIsPipSupported] = useState(false);
     const [isPipActive, setIsPipActive] = useState(false);
-    const [isAudioLoaded, setIsAudioLoaded] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const { toast } = useToast();
     
     const audioRef = useRef<HTMLAudioElement>(null);
@@ -178,17 +178,27 @@ export function RadioPage() {
         if (audioRef.current) {
             if (isPlaying) {
                 audioRef.current.pause();
+                setIsPlaying(false);
             } else {
-                audioRef.current.play().catch(error => {
-                    console.error("Playback failed:", error);
-                    toast({
-                        title: "Playback Error",
-                        description: "Could not play the stream. Please try again.",
-                        variant: "destructive",
+                setIsLoading(true);
+                audioRef.current.load(); // Explicitly load the stream
+                audioRef.current.play()
+                    .then(() => {
+                        setIsPlaying(true);
+                    })
+                    .catch(error => {
+                        console.error("Playback failed:", error);
+                        toast({
+                            title: "Playback Error",
+                            description: "Could not play the stream. Please try again later.",
+                            variant: "destructive",
+                        });
+                        setIsPlaying(false);
+                    })
+                    .finally(() => {
+                        setIsLoading(false);
                     });
-                });
             }
-            setIsPlaying(!isPlaying);
         }
     };
     
@@ -211,7 +221,7 @@ export function RadioPage() {
                 const video = videoRef.current;
                 const canvas = canvasRef.current;
 
-                if (typeof audio.captureStream !== 'function') {
+                if (typeof (audio as any).captureStream !== 'function') {
                     console.error("audio.captureStream() is not supported.");
                     toast({
                         title: "Feature Not Supported",
@@ -260,7 +270,7 @@ export function RadioPage() {
 
     return (
         <>
-            <audio ref={audioRef} src={STREAM_URL} crossOrigin="anonymous" preload="none" onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} onLoadedData={() => setIsAudioLoaded(true)} />
+            <audio ref={audioRef} src={STREAM_URL} crossOrigin="anonymous" preload="auto" onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} />
             <video ref={videoRef} muted style={{ display: 'none' }} playsInline />
             <canvas ref={canvasRef} width="512" height="512" style={{ display: 'none' }}></canvas>
             
@@ -327,8 +337,9 @@ export function RadioPage() {
                                             size="icon"
                                             className="relative z-10 w-52 h-52 rounded-full hover:bg-background/80 border-4 border-primary shadow-lg transition-transform hover:scale-105 flex items-center justify-center"
                                             aria-label={isPlaying ? 'Pause' : 'Play'}
+                                            disabled={isLoading}
                                         >
-                                            {isPlaying ? <Pause className="w-40 h-40 text-primary" /> : <Play className="w-40 h-40 text-primary" />}
+                                            {isLoading ? <Loader2 className="w-40 h-40 text-primary animate-spin" /> : (isPlaying ? <Pause className="w-40 h-40 text-primary" /> : <Play className="w-40 h-40 text-primary" />)}
                                         </Button>
                                     </div>
                                     <div className="w-full max-w-xs space-y-4">
