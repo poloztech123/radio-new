@@ -104,7 +104,7 @@ export function RadioPage() {
         setIsShareSupported(!!(typeof window !== 'undefined' && navigator.share));
         
         const videoElement = videoRef.current;
-        if (typeof document !== 'undefined' && 'pictureInPictureEnabled' in document && document.pictureInPictureEnabled && videoElement) {
+        if (typeof document !== 'undefined' && 'pictureInPictureEnabled' in document && document.pictureInPictureEnabled && !!videoElement) {
             setIsPipSupported(true);
         }
         
@@ -219,19 +219,20 @@ export function RadioPage() {
                  
                  const videoStream = canvas.captureStream();
                  
+                 let audioStream;
                  if (audioRef.current.srcObject) {
-                    const audioStream = audioRef.current.srcObject as MediaStream;
-                    const audioTracks = audioStream.getAudioTracks();
-                    if (audioTracks.length > 0) {
-                        videoStream.addTrack(audioTracks[0]);
-                    }
+                    audioStream = audioRef.current.srcObject as MediaStream;
                  } else {
                     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
                     const source = audioContext.createMediaElementSource(audioRef.current);
                     const destination = audioContext.createMediaStreamDestination();
                     source.connect(destination);
-                    const audioTrack = destination.stream.getAudioTracks()[0];
-                    videoStream.addTrack(audioTrack);
+                    audioStream = destination.stream;
+                 }
+
+                 const audioTracks = audioStream.getAudioTracks();
+                 if (audioTracks.length > 0) {
+                     videoStream.addTrack(audioTracks[0]);
                  }
 
 
@@ -275,7 +276,7 @@ export function RadioPage() {
                                 <Radio className="w-6 h-6 text-primary" />
                             </div>
                         </div>
-                        <h1 className="text-4xl font-bold font-headline tracking-tighter text-center">
+                        <h1 className="text-4xl font-bold font-headline tracking-tighter text-center whitespace-nowrap">
                             Mike Dee <span className="text-primary">Radio</span>
                         </h1>
                          <div className="flex items-center gap-2 justify-self-end">
