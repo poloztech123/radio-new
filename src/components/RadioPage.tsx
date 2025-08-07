@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Play, Pause, Volume2, Volume1, VolumeX, Radio, CalendarDays, Music, Info, Share2, Copy } from "lucide-react";
+import { Play, Pause, Volume2, Volume1, VolumeX, Radio, CalendarDays, Music, Info, Share2, Copy, Bot } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Image from 'next/image';
 
@@ -95,8 +95,8 @@ export function RadioPage() {
     const [isShareSupported, setIsShareSupported] = useState(false);
     const [isPipSupported, setIsPipSupported] = useState(false);
     const [isPipActive, setIsPipActive] = useState(false);
+    
     const { toast } = useToast();
-
     const audioRef = useRef<HTMLAudioElement>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -212,9 +212,6 @@ export function RadioPage() {
                  }
                  
                  const videoStream = canvas.captureStream();
-                 
-                 // This part is tricky. We need an AudioContext to merge the audio stream
-                 // This approach may have limitations across browsers
                  const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
                  const source = audioContext.createMediaElementSource(audioRef.current);
                  const destination = audioContext.createMediaStreamDestination();
@@ -226,7 +223,7 @@ export function RadioPage() {
                  const combinedStream = new MediaStream([videoTrack, audioTrack]);
 
                  videoRef.current.srcObject = combinedStream;
-                 videoRef.current.play();
+                 await videoRef.current.play();
                  
                  await videoRef.current.requestPictureInPicture();
             }
@@ -267,7 +264,7 @@ export function RadioPage() {
                                 Mike Dee <span className="text-primary">Radio</span>
                             </h1>
                         </div>
-                        <div className="flex items-center gap-2">
+                         <div className="flex items-center gap-2">
                             {isPipSupported && (
                                 <Button onClick={togglePictureInPicture} variant="outline" size="icon" className="shrink-0" aria-label="Toggle Picture-in-Picture">
                                     <PictureInPictureIcon className={`h-5 w-5 ${isPipActive ? "text-primary" : ""}`} />
@@ -278,8 +275,8 @@ export function RadioPage() {
                             </Button>
                         </div>
                     </header>
-                    <div className="relative w-full flex justify-center mb-10">
-                        <div className="relative w-[100px] h-[100px] rounded-lg overflow-hidden bg-card/70 border border-border/50 shadow-lg shadow-black/20">
+                    <div className="relative w-full flex justify-center mb-4">
+                        <div className="relative w-[150px] h-[150px] rounded-lg overflow-hidden bg-card/70 border border-border/50 shadow-lg shadow-black/20">
                             <Image
                                 src="https://mikedeeradio.com/img/MIKE%20DEE%20RADIO%201.jpg"
                                 alt="Logo"
@@ -301,8 +298,8 @@ export function RadioPage() {
                         </div>
                     </div>
 
-                    <div className="flex flex-col gap-8">
-                        <div className="w-full">
+                    <div className="flex flex-col gap-8 items-center">
+                        <div className="w-full max-w-md">
                             <Card className="bg-card/70 backdrop-blur-lg border-border/50 shadow-2xl shadow-black/20">
                                 <CardHeader className="text-center">
                                     <CardTitle className="font-headline text-3xl">Making Life Interesting</CardTitle>
@@ -338,7 +335,7 @@ export function RadioPage() {
                             </Card>
                         </div>
 
-                        <div className="w-full">
+                        <div className="w-full max-w-4xl">
                             <Card className="bg-card/70 backdrop-blur-lg border-border/50 shadow-2xl shadow-black/20 h-full">
                                 <CardHeader>
                                     <div className="flex items-center gap-3">
