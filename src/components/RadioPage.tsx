@@ -1,5 +1,4 @@
 
-
 "use client"
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
@@ -13,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import Image from 'next/image';
 
 const AD_TEXT = "Chali Royal Guest House is Jinja's home away from home, Ghokale Rd  ** Akwi fashions brings the best out of your looks with their passion in design. Iganga road Jinja city  **  Magnetic looks saloon explains your right to look elegant. Lady Alice Mulooki Rd Jinja  **  HARED Petroleum has the best pure fuel and oil for your engine and with best services all across the country  **  Salongo and Sons electronics for all original electronics on Main Street Opp former Crane Bank. They do deliveries  **  Contact Mike Dee for your radio set up, Website design, App development, Music instrument lessons, DJ lessons, presentation lessons  **  For graphics design lessons and website development lessons contact us at Mike Dee Radio  **  Contact Mike Dee Radio for any coverage and product marketing. Let's help you see results instantly  **  Send your info that you would like to be aired on our WhatsApp 075 666 04 05. Opinions, regards, debates e.t.c  **  Listen to the radio for details.  ";
-const STREAM_URL = "http://stream.radiojar.com/9nesgw002hcwv";
+const STREAM_URL = "https://stream.radiojar.com/9nesgw002hcwv";
 
 const INITIAL_SCHEDULE = {
    Monday: [
@@ -107,7 +106,10 @@ export function RadioPage() {
         
         const videoElement = videoRef.current;
         if (typeof document !== 'undefined' && 'pictureInPictureEnabled' in document && document.pictureInPictureEnabled && !!videoElement) {
-            setIsPipSupported(true);
+            // Check for captureStream support on the audio element prototype
+            if (HTMLAudioElement.prototype.captureStream) {
+              setIsPipSupported(true);
+            }
         }
         
         const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -127,21 +129,26 @@ export function RadioPage() {
                 video.removeEventListener('leavepictureinpicture', onLeavePip);
             };
         }
-
-        // Combine audio and video for PiP
-        if (videoRef.current && audioRef.current) {
-          const audioStream = (audioRef.current as any).captureStream();
-          const canvas = canvasRef.current;
-          if (!canvas) return;
-
-          const videoStream = canvas.captureStream();
-          const audioTracks = audioStream.getAudioTracks();
-          if (audioTracks.length > 0) {
-              videoStream.addTrack(audioTracks[0]);
-          }
-          videoRef.current.srcObject = videoStream;
-        }
     }, []);
+
+    useEffect(() => {
+        // Combine audio and video for PiP
+        if (isPipSupported && videoRef.current && audioRef.current && canvasRef.current) {
+          // This check is important because captureStream is experimental
+          if (typeof (audioRef.current as any).captureStream === 'function') {
+            const audioStream = (audioRef.current as any).captureStream();
+            const canvas = canvasRef.current;
+            if (!canvas) return;
+
+            const videoStream = canvas.captureStream();
+            const audioTracks = audioStream.getAudioTracks();
+            if (audioTracks.length > 0) {
+                videoStream.addTrack(audioTracks[0]);
+            }
+            videoRef.current.srcObject = videoStream;
+          }
+        }
+    }, [isPipSupported]);
 
     useEffect(() => {
         if (audioRef.current) {
@@ -190,7 +197,7 @@ export function RadioPage() {
                 audioRef.current.pause();
             } else {
                 audioRef.current.play().catch(error => {
-                    console.error("Playback failed:", error);
+                    console.error("Playback failed:", JSON.stringify(error));
                     toast({
                         title: "Playback Error",
                         description: "Could not play the stream. Please try again.",
@@ -264,9 +271,7 @@ export function RadioPage() {
                 <main className="p-4 sm:p-6 lg:p-8">
                     <header className="flex justify-between items-center mb-6">
                          <div className="flex items-center gap-3 justify-center flex-grow">
-                             <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center border border-primary/30">
-                                <Radio className="w-6 h-6 text-primary" />
-                            </div>
+                             <Radio className="w-8 h-8 text-primary" />
                             <h1 className="text-4xl font-bold font-headline tracking-tighter text-center">
                                 <span className="whitespace-nowrap">Mike Dee</span> <br /><span className="text-primary">Radio</span>
                             </h1>
