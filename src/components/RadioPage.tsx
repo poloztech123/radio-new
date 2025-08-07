@@ -96,14 +96,17 @@ export function RadioPage() {
     const [isPipSupported, setIsPipSupported] = useState(false);
     const [isPipActive, setIsPipActive] = useState(false);
     
-    const { toast } = useToast();
     const audioRef = useRef<HTMLAudioElement>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
         setIsShareSupported(!!(typeof window !== 'undefined' && navigator.share));
-        setIsPipSupported(typeof document !== 'undefined' && 'pictureInPictureEnabled' in document && document.pictureInPictureEnabled);
+        
+        const videoElement = videoRef.current;
+        if (typeof document !== 'undefined' && 'pictureInPictureEnabled' in document && document.pictureInPictureEnabled && videoElement) {
+            setIsPipSupported(true);
+        }
         
         const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
         const dayIndex = new Date().getDay();
@@ -131,6 +134,7 @@ export function RadioPage() {
     }, [volume]);
 
     const handleShare = async () => {
+        const { toast } = useToast();
         const shareData = {
             title: 'Mike Dee Radio',
             text: 'Check out Mike Dee Radio - Live streaming radio!',
@@ -166,6 +170,7 @@ export function RadioPage() {
     };
 
     const togglePlayPause = () => {
+        const { toast } = useToast();
         if (audioRef.current) {
             if (isPlaying) {
                 audioRef.current.pause();
@@ -192,6 +197,7 @@ export function RadioPage() {
     };
     
     const togglePictureInPicture = async () => {
+        const { toast } = useToast();
         if (!isPipSupported || !videoRef.current || !canvasRef.current || !audioRef.current) return;
 
         try {
@@ -212,20 +218,28 @@ export function RadioPage() {
                  }
                  
                  const videoStream = canvas.captureStream();
-                 const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-                 const source = audioContext.createMediaElementSource(audioRef.current);
-                 const destination = audioContext.createMediaStreamDestination();
-                 source.connect(destination);
-
-                 const audioTrack = destination.stream.getAudioTracks()[0];
-                 const videoTrack = videoStream.getVideoTracks()[0];
                  
-                 const combinedStream = new MediaStream([videoTrack, audioTrack]);
+                 if (audioRef.current.srcObject) {
+                    const audioStream = audioRef.current.srcObject as MediaStream;
+                    const audioTracks = audioStream.getAudioTracks();
+                    if (audioTracks.length > 0) {
+                        videoStream.addTrack(audioTracks[0]);
+                    }
+                 } else {
+                    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+                    const source = audioContext.createMediaElementSource(audioRef.current);
+                    const destination = audioContext.createMediaStreamDestination();
+                    source.connect(destination);
+                    const audioTrack = destination.stream.getAudioTracks()[0];
+                    videoStream.addTrack(audioTrack);
+                 }
 
-                 videoRef.current.srcObject = combinedStream;
-                 await videoRef.current.play();
+
+                 const video = videoRef.current;
+                 video.srcObject = videoStream;
+                 await video.play();
                  
-                 await videoRef.current.requestPictureInPicture();
+                 await video.requestPictureInPicture();
             }
         } catch (error) {
             console.error("PiP failed:", error);
@@ -246,7 +260,7 @@ export function RadioPage() {
     return (
         <>
             <audio ref={audioRef} src={STREAM_URL} crossOrigin="anonymous" preload="none" onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} />
-            <video ref={videoRef} muted style={{ display: 'none' }} />
+            <video ref={videoRef} muted style={{ display: 'none' }} playsInline />
             <canvas ref={canvasRef} width="512" height="512" style={{ display: 'none' }}></canvas>
             
             <div className="relative min-h-screen w-full overflow-hidden bg-background text-foreground">
@@ -255,16 +269,16 @@ export function RadioPage() {
                 </div>
                 
                 <main className="p-4 sm:p-6 lg:p-8">
-                    <header className="flex justify-between items-center mb-6">
+                    <header className="grid grid-cols-3 items-center mb-6">
                         <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center border border-primary/30">
+                             <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center border border-primary/30">
                                 <Radio className="w-6 h-6 text-primary" />
                             </div>
-                            <h1 className="text-4xl font-bold font-headline tracking-tighter">
-                                Mike Dee <span className="text-primary">Radio</span>
-                            </h1>
                         </div>
-                         <div className="flex items-center gap-2">
+                        <h1 className="text-4xl font-bold font-headline tracking-tighter text-center">
+                            Mike Dee <span className="text-primary">Radio</span>
+                        </h1>
+                         <div className="flex items-center gap-2 justify-self-end">
                             {isPipSupported && (
                                 <Button onClick={togglePictureInPicture} variant="outline" size="icon" className="shrink-0" aria-label="Toggle Picture-in-Picture">
                                     <PictureInPictureIcon className={`h-5 w-5 ${isPipActive ? "text-primary" : ""}`} />
