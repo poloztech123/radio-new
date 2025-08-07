@@ -95,6 +95,7 @@ export function RadioPage() {
     const [isShareSupported, setIsShareSupported] = useState(false);
     const [isPipSupported, setIsPipSupported] = useState(false);
     const [isPipActive, setIsPipActive] = useState(false);
+    const [isAudioLoaded, setIsAudioLoaded] = useState(false);
     const { toast } = useToast();
     
     const audioRef = useRef<HTMLAudioElement>(null);
@@ -102,13 +103,14 @@ export function RadioPage() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
-        setIsShareSupported(!!(typeof window !== 'undefined' && navigator.share));
-        
-        const videoElement = videoRef.current;
-        if (typeof document !== 'undefined' && 'pictureInPictureEnabled' in document && document.pictureInPictureEnabled && !!videoElement) {
-            // Check for captureStream support on the audio element prototype
-            if (HTMLAudioElement.prototype.captureStream) {
-              setIsPipSupported(true);
+        if (typeof window !== 'undefined') {
+            setIsShareSupported(!!navigator.share);
+
+            const audioEl = document.createElement('audio');
+            const isCaptureStreamSupported = typeof audioEl.captureStream === 'function';
+
+            if ('pictureInPictureEnabled' in document && document.pictureInPictureEnabled && isCaptureStreamSupported) {
+                setIsPipSupported(true);
             }
         }
         
@@ -130,25 +132,6 @@ export function RadioPage() {
             };
         }
     }, []);
-
-    useEffect(() => {
-        // Combine audio and video for PiP
-        if (isPipSupported && videoRef.current && audioRef.current && canvasRef.current) {
-          // This check is important because captureStream is experimental
-          if (typeof (audioRef.current as any).captureStream === 'function') {
-            const audioStream = (audioRef.current as any).captureStream();
-            const canvas = canvasRef.current;
-            if (!canvas) return;
-
-            const videoStream = canvas.captureStream();
-            const audioTracks = audioStream.getAudioTracks();
-            if (audioTracks.length > 0) {
-                videoStream.addTrack(audioTracks[0]);
-            }
-            videoRef.current.srcObject = videoStream;
-          }
-        }
-    }, [isPipSupported]);
 
     useEffect(() => {
         if (audioRef.current) {
@@ -197,7 +180,7 @@ export function RadioPage() {
                 audioRef.current.pause();
             } else {
                 audioRef.current.play().catch(error => {
-                    console.error("Playback failed:", JSON.stringify(error));
+                    console.error("Playback failed:", error);
                     toast({
                         title: "Playback Error",
                         description: "Could not play the stream. Please try again.",
@@ -224,9 +207,28 @@ export function RadioPage() {
             if (document.pictureInPictureElement) {
                 await document.exitPictureInPicture();
             } else {
-                 const canvas = canvasRef.current;
-                 const ctx = canvas.getContext('2d');
-                 if(ctx) {
+                const audio = audioRef.current;
+                const video = videoRef.current;
+                const canvas = canvasRef.current;
+
+                if (typeof audio.captureStream !== 'function') {
+                    console.error("audio.captureStream() is not supported.");
+                    toast({
+                        title: "Feature Not Supported",
+                        description: "Picture-in-Picture is not supported by your browser.",
+                        variant: "destructive",
+                    });
+                    return;
+                }
+                
+                const audioStream = (audio as any).captureStream();
+                const videoStream = canvas.captureStream();
+                
+                audioStream.getAudioTracks().forEach(track => videoStream.addTrack(track));
+                video.srcObject = videoStream;
+
+                const ctx = canvas.getContext('2d');
+                if (ctx) {
                     ctx.fillStyle = 'black';
                     ctx.fillRect(0, 0, canvas.width, canvas.height);
                     const logo = new window.Image();
@@ -234,12 +236,11 @@ export function RadioPage() {
                     logo.src = "https://mikedeeradio.com/img/MIKE%20DEE%20RADIO%201.jpg";
                     logo.onload = () => {
                         ctx.drawImage(logo, 56, 56, 400, 400);
-                    }
-                 }
+                    };
+                }
 
-                 const video = videoRef.current;
-                 await video.play();
-                 await video.requestPictureInPicture();
+                await video.play();
+                await video.requestPictureInPicture();
             }
         } catch (error) {
             console.error("PiP failed:", error);
@@ -259,7 +260,7 @@ export function RadioPage() {
 
     return (
         <>
-            <audio ref={audioRef} src={STREAM_URL} crossOrigin="anonymous" preload="none" onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} />
+            <audio ref={audioRef} src={STREAM_URL} crossOrigin="anonymous" preload="none" onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} onLoadedData={() => setIsAudioLoaded(true)} />
             <video ref={videoRef} muted style={{ display: 'none' }} playsInline />
             <canvas ref={canvasRef} width="512" height="512" style={{ display: 'none' }}></canvas>
             
