@@ -1,4 +1,5 @@
 
+
 "use client"
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
@@ -277,7 +278,7 @@ export function RadioPage() {
                             </div>
                         </div>
                         <h1 className="text-4xl font-bold font-headline tracking-tighter text-center">
-                            Mike Dee <br /><span className="text-primary">Radio</span>
+                            <span className="whitespace-nowrap">Mike Dee</span> <br /><span className="text-primary">Radio</span>
                         </h1>
                          <div className="flex items-center gap-2 justify-self-end">
                             {isPipSupported && (
