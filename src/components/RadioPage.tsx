@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Play, Pause, Volume2, Volume1, VolumeX, Radio, CalendarDays, Music, Info, Share2, Copy, Bot } from "lucide-react";
+import { Play, Pause, Volume2, Volume1, VolumeX, Radio, CalendarDays, Music, Info, Share2, Copy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Image from 'next/image';
 
@@ -96,6 +96,7 @@ export function RadioPage() {
     const [isShareSupported, setIsShareSupported] = useState(false);
     const [isPipSupported, setIsPipSupported] = useState(false);
     const [isPipActive, setIsPipActive] = useState(false);
+    const { toast } = useToast();
     
     const audioRef = useRef<HTMLAudioElement>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -126,6 +127,20 @@ export function RadioPage() {
                 video.removeEventListener('leavepictureinpicture', onLeavePip);
             };
         }
+
+        // Combine audio and video for PiP
+        if (videoRef.current && audioRef.current) {
+          const audioStream = (audioRef.current as any).captureStream();
+          const canvas = canvasRef.current;
+          if (!canvas) return;
+
+          const videoStream = canvas.captureStream();
+          const audioTracks = audioStream.getAudioTracks();
+          if (audioTracks.length > 0) {
+              videoStream.addTrack(audioTracks[0]);
+          }
+          videoRef.current.srcObject = videoStream;
+        }
     }, []);
 
     useEffect(() => {
@@ -135,7 +150,6 @@ export function RadioPage() {
     }, [volume]);
 
     const handleShare = async () => {
-        const { toast } = useToast();
         const shareData = {
             title: 'Mike Dee Radio',
             text: 'Check out Mike Dee Radio - Live streaming radio!',
@@ -171,7 +185,6 @@ export function RadioPage() {
     };
 
     const togglePlayPause = () => {
-        const { toast } = useToast();
         if (audioRef.current) {
             if (isPlaying) {
                 audioRef.current.pause();
@@ -198,7 +211,6 @@ export function RadioPage() {
     };
     
     const togglePictureInPicture = async () => {
-        const { toast } = useToast();
         if (!isPipSupported || !videoRef.current || !canvasRef.current || !audioRef.current) return;
 
         try {
@@ -217,30 +229,9 @@ export function RadioPage() {
                         ctx.drawImage(logo, 56, 56, 400, 400);
                     }
                  }
-                 
-                 const videoStream = canvas.captureStream();
-                 
-                 let audioStream;
-                 if (audioRef.current.srcObject) {
-                    audioStream = audioRef.current.srcObject as MediaStream;
-                 } else {
-                    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-                    const source = audioContext.createMediaElementSource(audioRef.current);
-                    const destination = audioContext.createMediaStreamDestination();
-                    source.connect(destination);
-                    audioStream = destination.stream;
-                 }
-
-                 const audioTracks = audioStream.getAudioTracks();
-                 if (audioTracks.length > 0) {
-                     videoStream.addTrack(audioTracks[0]);
-                 }
-
 
                  const video = videoRef.current;
-                 video.srcObject = videoStream;
                  await video.play();
-                 
                  await video.requestPictureInPicture();
             }
         } catch (error) {
@@ -271,15 +262,15 @@ export function RadioPage() {
                 </div>
                 
                 <main className="p-4 sm:p-6 lg:p-8">
-                    <header className="grid grid-cols-3 items-center mb-6">
-                        <div className="flex items-center gap-3">
+                    <header className="flex justify-between items-center mb-6">
+                         <div className="flex items-center gap-3 justify-center flex-grow">
                              <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center border border-primary/30">
                                 <Radio className="w-6 h-6 text-primary" />
                             </div>
+                            <h1 className="text-4xl font-bold font-headline tracking-tighter text-center">
+                                <span className="whitespace-nowrap">Mike Dee</span> <br /><span className="text-primary">Radio</span>
+                            </h1>
                         </div>
-                        <h1 className="text-4xl font-bold font-headline tracking-tighter text-center">
-                            <span className="whitespace-nowrap">Mike Dee</span> <br /><span className="text-primary">Radio</span>
-                        </h1>
                          <div className="flex items-center gap-2 justify-self-end">
                             {isPipSupported && (
                                 <Button onClick={togglePictureInPicture} variant="outline" size="icon" className="shrink-0" aria-label="Toggle Picture-in-Picture">
