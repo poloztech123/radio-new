@@ -276,8 +276,8 @@ export function RadioPage() {
                                 <Radio className="w-6 h-6 text-primary" />
                             </div>
                         </div>
-                        <h1 className="text-4xl font-bold font-headline tracking-tighter text-center whitespace-nowrap">
-                            Mike Dee <span className="text-primary">Radio</span>
+                        <h1 className="text-4xl font-bold font-headline tracking-tighter text-center">
+                            Mike Dee <br /><span className="text-primary">Radio</span>
                         </h1>
                          <div className="flex items-center gap-2 justify-self-end">
                             {isPipSupported && (
