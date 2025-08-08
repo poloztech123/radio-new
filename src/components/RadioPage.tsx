@@ -107,7 +107,7 @@ export function RadioPage() {
             setIsShareSupported(!!navigator.share);
 
             const audioEl = document.createElement('audio');
-            const isCaptureStreamSupported = typeof audioEl.captureStream === 'function';
+            const isCaptureStreamSupported = typeof (audioEl as any).captureStream === 'function';
 
             if ('pictureInPictureEnabled' in document && document.pictureInPictureEnabled && isCaptureStreamSupported) {
                 setIsPipSupported(true);
@@ -175,30 +175,41 @@ export function RadioPage() {
     };
 
     const togglePlayPause = () => {
-        if (audioRef.current) {
-            if (isPlaying) {
-                audioRef.current.pause();
-                setIsPlaying(false);
-            } else {
-                setIsLoading(true);
-                audioRef.current.load(); // Explicitly load the stream
-                audioRef.current.play()
-                    .then(() => {
-                        setIsPlaying(true);
-                    })
-                    .catch(error => {
-                        console.error("Playback failed:", error);
-                        toast({
-                            title: "Playback Error",
-                            description: "Could not play the stream. Please try again later.",
-                            variant: "destructive",
-                        });
-                        setIsPlaying(false);
-                    })
-                    .finally(() => {
-                        setIsLoading(false);
-                    });
+        if (!audioRef.current) return;
+
+        if (isPlaying) {
+            audioRef.current.pause();
+            setIsPlaying(false);
+        } else {
+            setIsLoading(true);
+            const audio = audioRef.current;
+            
+            // Set the source only when play is initiated
+            if (audio.src !== STREAM_URL) {
+                audio.src = STREAM_URL;
             }
+
+            audio.load();
+            audio.play()
+                .then(() => {
+                    setIsPlaying(true);
+                })
+                .catch(error => {
+                    console.error("Playback failed:", error);
+                    let description = "Could not play the stream. Please try again later.";
+                    if (error.message.includes("not suitable")) {
+                        description = "The audio stream is currently unavailable or not supported by your browser.";
+                    }
+                    toast({
+                        title: "Playback Error",
+                        description: description,
+                        variant: "destructive",
+                    });
+                    setIsPlaying(false);
+                })
+                .finally(() => {
+                    setIsLoading(false);
+                });
         }
     };
     
@@ -270,7 +281,7 @@ export function RadioPage() {
 
     return (
         <>
-            <audio ref={audioRef} src={STREAM_URL} crossOrigin="anonymous" preload="auto" onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} />
+            <audio ref={audioRef} crossOrigin="anonymous" preload="none" onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} />
             <video ref={videoRef} muted style={{ display: 'none' }} playsInline />
             <canvas ref={canvasRef} width="512" height="512" style={{ display: 'none' }}></canvas>
             
