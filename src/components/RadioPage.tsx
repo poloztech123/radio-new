@@ -184,10 +184,8 @@ export function RadioPage() {
             setIsLoading(true);
             const audio = audioRef.current;
             
-            if (audio.src !== STREAM_URL) {
-                audio.src = STREAM_URL;
-            }
-
+            audio.src = STREAM_URL;
+            audio.load();
             audio.play()
                 .then(() => {
                     setIsPlaying(true);
