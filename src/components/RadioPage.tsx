@@ -143,7 +143,7 @@ export function RadioPage() {
         const shareData = {
             title: 'Mike Dee Radio',
             text: 'Check out Mike Dee Radio - Live streaming radio!',
-            url: window.location.href,
+            url: 'https://play.google.com/store/apps/details?id=co.median.android.mpywwq&hl=en', // Replace with your actual Play Store link
         };
 
         if (navigator.share) {
@@ -159,7 +159,7 @@ export function RadioPage() {
             }
         } else {
             try {
-                await navigator.clipboard.writeText(shareData.url);
+                await navigator.clipboard.writeText('https://play.google.com/store/apps/details?id=co.median.android.mpywwq&hl=en'); // Replace with your actual Play Store link
                 toast({
                     title: "Link Copied",
                     description: "The radio link has been copied to your clipboard.",
@@ -241,7 +241,6 @@ export function RadioPage() {
                 const audioStream = (audio as any).captureStream();
                 const videoStream = canvas.captureStream();
                 
-                audioStream.getAudioTracks().forEach(track => videoStream.addTrack(track));
                 video.srcObject = videoStream;
 
                 const ctx = canvas.getContext('2d');
