@@ -184,12 +184,10 @@ export function RadioPage() {
             setIsLoading(true);
             const audio = audioRef.current;
             
-            // Set the source only when play is initiated
             if (audio.src !== STREAM_URL) {
                 audio.src = STREAM_URL;
             }
 
-            audio.load();
             audio.play()
                 .then(() => {
                     setIsPlaying(true);
