@@ -100,6 +100,8 @@ export function RadioPage() {
     
     const audioRef = useRef<HTMLAudioElement>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
+    const audioContextRef = useRef<AudioContext | null>(null);
+    const analyserRef = useRef<AnalyserNode | null>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
@@ -118,6 +120,15 @@ export function RadioPage() {
         const dayIndex = new Date().getDay();
         const currentDayName = days[dayIndex];
         setCurrentDay(currentDayName.toLowerCase());
+        
+        // Initialize AudioContext
+        if (typeof window !== 'undefined' && !audioContextRef.current) {
+            audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+            analyserRef.current = audioContextRef.current.createAnalyser();
+            if (analyserRef.current) {
+                analyserRef.current.fftSize = 256; // Smaller FFT size for simpler visualization
+            }
+        }
 
         const video = videoRef.current;
         if (video) {
@@ -134,8 +145,13 @@ export function RadioPage() {
     }, []);
 
     useEffect(() => {
-        if (audioRef.current) {
-            audioRef.current.volume = volume;
+        // Handle volume change with AudioContext GainNode if it exists
+        if (audioContextRef.current && audioRef.current) {
+             const source = audioContextRef.current.createMediaElementSource(audioRef.current);
+             const gainNode = audioContextRef.current.createGain();
+             gainNode.gain.value = volume;
+             source.connect(gainNode);
+             gainNode.connect(audioContextRef.current.destination);
         }
     }, [volume]);
 
@@ -174,18 +190,82 @@ export function RadioPage() {
         }
     };
 
-    const togglePlayPause = () => {
-        if (!audioRef.current) return;
+    const setupAudioGraph = () => {
+        const audio = audioRef.current;
+        const audioContext = audioContextRef.current;
+        const analyser = analyserRef.current;
+        const canvas = canvasRef.current;
 
+        if (!audio || !audioContext || !analyser || !canvas) return;
+
+        try {
+            // Create source node from audio element
+            const source = audioContext.createMediaElementSource(audio);
+            const gainNode = audioContext.createGain();
+
+            // Connect source to gain node, analyser, and destination
+            source.connect(gainNode);
+            gainNode.connect(analyser);
+            analyser.connect(audioContext.destination);
+
+            // Set initial volume using the gain node
+            gainNode.gain.value = volume;
+
+            // Start visualization
+            drawVisualizer();
+
+        } catch (error) {
+            console.error("Error setting up audio graph:", error);
+        }
+    };
+
+    const drawVisualizer = () => {
+        const canvas = canvasRef.current;
+        const analyser = analyserRef.current;
+        const ctx = canvas?.getContext('2d');
+        if (!ctx || !analyser || !canvas) return;
+
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+
+        const animate = () => {
+            requestAnimationFrame(animate);
+
+            analyser.getByteFrequencyData(dataArray);
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const barWidth = (canvas.width / bufferLength) * 2.5;
+            let x = 0;
+
+            for(let i = 0; i < bufferLength; i++) {
+                let barHeight = dataArray[i];
+
+                ctx.fillStyle = `rgb(${barHeight + 100}, 50, 50)`;
+                ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+
+                x += barWidth + 1;
+            }
+        };
+
+        animate();
+    };
+
+    const togglePlayPause = () => {
+        const audio = audioRef.current;
+        const audioContext = audioContextRef.current;
+        const analyser = analyserRef.current;
+        const canvas = canvasRef.current;
+
+        if (!audio || !audioContext || !analyser || !canvas) return;
+
+        setIsLoading(true);
         if (isPlaying) {
-            audioRef.current.pause();
+            audio.pause();
             setIsPlaying(false);
+            setIsLoading(false); // Set loading to false when pausing
         } else {
-            setIsLoading(true);
-            const audio = audioRef.current;
-            
             audio.src = STREAM_URL;
-            audio.load();
             audio.play()
                 .then(() => {
                     setIsPlaying(true);
@@ -201,6 +281,7 @@ export function RadioPage() {
                         description: description,
                         variant: "destructive",
                     });
+                    // Stop any ongoing visualization if playback fails
                     setIsPlaying(false);
                 })
                 .finally(() => {
@@ -208,15 +289,22 @@ export function RadioPage() {
                 });
         }
     };
-    
-    const handleVolumeChange = (value: number[]) => {
+
+    useEffect(() => {
+        // Start setting up audio graph only when the stream is playing
+        if (isPlaying && audioRef.current && audioContextRef.current && analyserRef.current && canvasRef.current) {
+           setupAudioGraph();
+        }
+    }, [isPlaying]); // Re-run when isPlaying changes
+
+     const handleVolumeChange = (value: number[]) => {
         const newVolume = value[0];
         setVolume(newVolume);
-        if (audioRef.current) {
-            audioRef.current.volume = newVolume;
+        if (audioContextRef.current && audioContextRef.current.destination instanceof GainNode) {
+             (audioContextRef.current.destination as GainNode).gain.value = newVolume;
         }
     };
-    
+
     const togglePictureInPicture = async () => {
         if (!isPipSupported || !videoRef.current || !canvasRef.current || !audioRef.current) return;
 
@@ -276,8 +364,8 @@ export function RadioPage() {
 
     return (
         <>
-            <audio ref={audioRef} crossOrigin="anonymous" preload="none" onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} />
             <video ref={videoRef} muted style={{ display: 'none' }} playsInline />
+            <audio ref={audioRef} crossOrigin="anonymous" preload="auto" onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} />
             <canvas ref={canvasRef} width="512" height="512" style={{ display: 'none' }}></canvas>
             
             <div className="relative min-h-screen w-full overflow-hidden bg-background text-foreground">
@@ -324,7 +412,7 @@ export function RadioPage() {
                             <span className="inline-block text-2xl text-primary-foreground font-semibold animate-marquee-slow hover:pause">
                                 {AD_TEXT.repeat(3)}
                             </span>
-                        </div>
+                        </div>                        
                     </div>
 
                     <div className="flex flex-col gap-8 items-center">
