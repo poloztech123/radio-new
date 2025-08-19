@@ -253,19 +253,19 @@ export function RadioPage() {
 
     const togglePlayPause = () => {
         const audio = audioRef.current;
-        const audioContext = audioContextRef.current;
-        const analyser = analyserRef.current;
-        const canvas = canvasRef.current;
-
-        if (!audio || !audioContext || !analyser || !canvas) return;
+        if (!audio) return;
 
         setIsLoading(true);
+
         if (isPlaying) {
             audio.pause();
             setIsPlaying(false);
-            setIsLoading(false); // Set loading to false when pausing
+            setIsLoading(false);
         } else {
-            audio.src = STREAM_URL;
+            if (!audio.src) {
+                audio.src = STREAM_URL;
+                audio.load(); // Force load
+            }
             audio.play()
                 .then(() => {
                     setIsPlaying(true);
@@ -281,7 +281,6 @@ export function RadioPage() {
                         description: description,
                         variant: "destructive",
                     });
-                    // Stop any ongoing visualization if playback fails
                     setIsPlaying(false);
                 })
                 .finally(() => {
@@ -378,7 +377,7 @@ export function RadioPage() {
                          <div className="flex items-center gap-3 justify-center flex-grow">
                              <Radio className="w-8 h-8 text-primary" />
                             <h1 className="text-4xl font-bold font-headline tracking-tighter text-center">
-                                <span className="whitespace-nowrap">Mike Dee</span> <br /><span className="text-primary">Radio</span>
+                                <span className="whitespace-nowrap">Mike Dee</span> <span className="text-primary">Radio</span>
                             </h1>
                         </div>
                          <div className="flex items-center gap-2 justify-self-end">
@@ -422,7 +421,7 @@ export function RadioPage() {
                                     <CardTitle className="font-headline text-3xl">Making Life Interesting</CardTitle>
                                     <CardDescription>Streaming Worldwide 24/7</CardDescription>
                                 </CardHeader>
-                                <CardContent className="flex flex-col items-center justify-center gap-8">
+                                <CardContent className="flex flex-col items-center justify-center gap-6">
                                     <div className="relative w-52 h-52">
                                         <div className={`absolute inset-0 bg-primary/20 rounded-full transition-transform duration-500 ${isPlaying ? 'animate-pulse scale-110' : 'scale-100'}`}></div>
                                         <Button
@@ -436,9 +435,9 @@ export function RadioPage() {
                                             {isLoading ? <Loader2 className="w-40 h-40 text-primary animate-spin" /> : (isPlaying ? <Pause className="w-40 h-40 text-primary" /> : <Play className="w-40 h-40 text-primary" />)}
                                         </Button>
                                     </div>
-                                    <div className="w-full max-w-xs space-y-4">
-                                        <div className="flex items-center gap-4">
-                                            <VolumeIcon className="w-6 h-6 text-muted-foreground" />
+                                    <div className="w-full max-w-sm px-4">
+                                        <div className="flex items-center gap-3 bg-muted/50 p-2 rounded-full">
+                                            <VolumeIcon className="w-6 h-6 text-primary ml-2" />
                                             <Slider
                                                 defaultValue={[volume]}
                                                 max={1}
@@ -513,3 +512,5 @@ export function RadioPage() {
         </>
     );
 }
+
+    
