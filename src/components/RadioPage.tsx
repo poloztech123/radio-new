@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Play, Pause, Radio, CalendarDays, Music, Info, Share2, Copy, Loader2 } from "lucide-react";
+import { Play, Pause, Radio, CalendarDays, Music, Info, Share2, Copy, Loader2, Volume2, Volume1, VolumeX } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Image from 'next/image';
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Slider } from "@/components/ui/slider";
 
 const AD_TEXT = "Chali Royal Guest House is Jinja's home away from home, Ghokale Rd. Akwi fashions brings the best out of your looks with their passion in design Iganga road Jinja city. Magnetic looks saloon explains your right to look elegant. Lady Alice Mulooki Rd Jinja. HARED Petroleum has the best pure fuel and oil for your engine and with best services all across the country  **  Salongo and Sons electronics for all original electronics on Main Street Opp former Crane Bank. They do deliveries. Contact Mike Dee for your radio set up, Website design, App development, Music instrument lessons, DJ lessons, presentation lessons. For graphics design lessons and website development lessons contact us at Mike Dee Radio. Contact Mike Dee for any coverage and product marketing. Let's help you see results instantly. Send your info that you would like to be aired on our WhatsApp 075 666 04 05. Opinions, regards, debates e.t.c. Sharp Digital Studio for professional photography and videography in Jinja City and Uganda on main street Jinja call 0702403497. Nuwa electronics on Kutch road behind lukanga plaza is the leading source of all spare parts for TV, radios, amplifiers, computers, mixers, DVDs. They also have new electronic equipment and all accessories.call 0755293504 / 0779537263. Butterfly fumigation and cleaning, slashing, sewage unblocking call 0702418492. Listen to the radio for details.  ";
 const STREAM_URL = "https://stream.radiojar.com/9nesgw002hcwv";
@@ -88,6 +90,7 @@ const PictureInPictureIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export function RadioPage() {
     const [isPlaying, setIsPlaying] = useState(false);
+    const [volume, setVolume] = useState(0.8);
     const [schedule, setSchedule] = useState<Schedule>(INITIAL_SCHEDULE);
     const [currentDay, setCurrentDay] = useState('');
     const [isShareSupported, setIsShareSupported] = useState(false);
@@ -273,6 +276,12 @@ export function RadioPage() {
     };
 
     useEffect(() => {
+        if (audioRef.current) {
+            audioRef.current.volume = volume;
+        }
+    }, [volume]);
+
+    useEffect(() => {
         // Start setting up audio graph only when the stream is playing
         if (isPlaying && audioRef.current && audioContextRef.current && analyserRef.current && canvasRef.current) {
            setupAudioGraph();
@@ -329,6 +338,12 @@ export function RadioPage() {
             });
         }
     };
+
+    const VolumeIcon = useMemo(() => {
+        if (volume === 0) return VolumeX;
+        if (volume < 0.5) return Volume1;
+        return Volume2;
+    }, [volume]);
 
     return (
         <>
@@ -391,18 +406,37 @@ export function RadioPage() {
                                     <CardDescription>Streaming Worldwide 24/7</CardDescription>
                                 </CardHeader>
                                 <CardContent className="flex flex-col items-center justify-center gap-6">
-                                    <div className="relative w-52 h-52">
-                                        <div className={`absolute inset-0 bg-primary/20 rounded-full transition-transform duration-500 ${isPlaying ? 'animate-pulse scale-110' : 'scale-100'}`}></div>
-                                        <Button
-                                            onClick={togglePlayPause}
-                                            variant="outline"
-                                            size="icon"
-                                            className="relative z-10 w-52 h-52 rounded-full hover:bg-background/80 border-4 border-primary shadow-lg transition-transform hover:scale-105 flex items-center justify-center"
-                                            aria-label={isPlaying ? 'Pause' : 'Play'}
-                                            disabled={isLoading}
-                                        >
-                                            {isLoading ? <Loader2 className="w-40 h-40 text-primary animate-spin" /> : (isPlaying ? <Pause className="w-40 h-40 text-primary" /> : <Play className="w-40 h-40 text-primary" />)}
-                                        </Button>
+                                    <div className="flex items-center justify-center gap-4">
+                                        <div className="relative w-40 h-40">
+                                            <div className={`absolute inset-0 bg-primary/20 rounded-full transition-transform duration-500 ${isPlaying ? 'animate-pulse scale-110' : 'scale-100'}`}></div>
+                                            <Button
+                                                onClick={togglePlayPause}
+                                                variant="outline"
+                                                size="icon"
+                                                className="relative z-10 w-40 h-40 rounded-full hover:bg-background/80 border-4 border-primary shadow-lg transition-transform hover:scale-105 flex items-center justify-center"
+                                                aria-label={isPlaying ? 'Pause' : 'Play'}
+                                                disabled={isLoading}
+                                            >
+                                                {isLoading ? <Loader2 className="w-32 h-32 text-primary animate-spin" /> : (isPlaying ? <Pause className="w-32 h-32 text-primary" /> : <Play className="w-32 h-32 text-primary" />)}
+                                            </Button>
+                                        </div>
+                                         <Popover>
+                                            <PopoverTrigger asChild>
+                                                <Button variant="outline" size="icon" className="w-12 h-12 rounded-full border-2 border-primary">
+                                                    <VolumeIcon className="w-6 h-6 text-primary" />
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-2">
+                                                <Slider
+                                                    defaultValue={[volume * 100]}
+                                                    max={100}
+                                                    step={1}
+                                                    orientation="vertical"
+                                                    className="h-24"
+                                                    onValueChange={(value) => setVolume(value[0] / 100)}
+                                                />
+                                            </PopoverContent>
+                                        </Popover>
                                     </div>
                                 </CardContent>
                             </Card>
@@ -468,3 +502,5 @@ export function RadioPage() {
         </>
     );
 }
+
+    
