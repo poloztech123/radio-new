@@ -399,29 +399,29 @@ export function RadioPage() {
                     </div>
 
                     <div className="flex flex-col gap-8 items-center">
-                        <div className="w-full max-w-md">
+                        <div className="w-full max-w-lg">
                             <Card className="bg-card/70 backdrop-blur-lg border-border/50 shadow-2xl shadow-black/20">
                                 <CardHeader className="text-center">
                                     <CardTitle className="font-headline text-3xl">Making Life Interesting</CardTitle>
                                     <CardDescription>Streaming Worldwide 24/7</CardDescription>
                                 </CardHeader>
-                                <CardContent className="flex flex-col items-center justify-center gap-6">
+                                <CardContent className="flex flex-col items-center justify-center gap-6 p-6">
                                     <div className="flex items-center justify-center gap-4">
-                                        <div className="relative w-40 h-40">
+                                        <div className="relative w-52 h-52">
                                             <div className={`absolute inset-0 bg-primary/20 rounded-full transition-transform duration-500 ${isPlaying ? 'animate-pulse scale-110' : 'scale-100'}`}></div>
                                             <Button
                                                 onClick={togglePlayPause}
                                                 variant="outline"
                                                 size="icon"
-                                                className="relative z-10 w-40 h-40 rounded-full hover:bg-background/80 border-4 border-primary shadow-lg transition-transform hover:scale-105 flex items-center justify-center"
+                                                className="relative z-10 w-52 h-52 rounded-full hover:bg-background/80 border-4 border-primary shadow-lg transition-transform hover:scale-105 flex items-center justify-center"
                                                 aria-label={isPlaying ? 'Pause' : 'Play'}
                                                 disabled={isLoading}
                                             >
-                                                {isLoading ? <Loader2 className="w-32 h-32 text-primary animate-spin" /> : (isPlaying ? <Pause className="w-32 h-32 text-primary" /> : <Play className="w-32 h-32 text-primary" />)}
+                                                {isLoading ? <Loader2 className="w-40 h-40 text-primary animate-spin" /> : (isPlaying ? <Pause className="w-40 h-40 text-primary" /> : <Play className="w-40 h-40 text-primary" />)}
                                             </Button>
                                         </div>
                                     </div>
-                                    <div className="w-full max-w-[200px] flex items-center gap-2 px-4">
+                                    <div className="w-full max-w-xs flex items-center gap-3 px-4 pt-4">
                                         <VolumeIcon className="w-6 h-6 text-primary" />
                                         <Slider
                                             defaultValue={[volume * 100]}
