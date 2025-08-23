@@ -413,7 +413,7 @@ export function RadioPage() {
                                                 onClick={togglePlayPause}
                                                 variant="outline"
                                                 size="icon"
-                                                className="relative z-10 w-52 h-52 rounded-full hover:bg-background/80 border-4 border-primary shadow-lg transition-transform hover:scale-105 flex items-center justify-center"
+                                                              className="relative z-10 w-52 h-52 rounded-full hover:bg-background/80 border-4 border-primary shadow-[0_0_50px_20px_var(--primary)] transition-transform hover:scale-105 flex items-center justify-center"
                                                 aria-label={isPlaying ? 'Pause' : 'Play'}
                                                 disabled={isLoading}
                                             >
