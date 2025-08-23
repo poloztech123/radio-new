@@ -420,23 +420,17 @@ export function RadioPage() {
                                                 {isLoading ? <Loader2 className="w-32 h-32 text-primary animate-spin" /> : (isPlaying ? <Pause className="w-32 h-32 text-primary" /> : <Play className="w-32 h-32 text-primary" />)}
                                             </Button>
                                         </div>
-                                         <Popover>
-                                            <PopoverTrigger asChild>
-                                                <Button variant="outline" size="icon" className="w-12 h-12 rounded-full border-2 border-primary">
-                                                    <VolumeIcon className="w-6 h-6 text-primary" />
-                                                </Button>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-2">
-                                                <Slider
-                                                    defaultValue={[volume * 100]}
-                                                    max={100}
-                                                    step={1}
-                                                    orientation="vertical"
-                                                    className="h-24"
-                                                    onValueChange={(value) => setVolume(value[0] / 100)}
-                                                />
-                                            </PopoverContent>
-                                        </Popover>
+                                    </div>
+                                    <div className="w-full max-w-[200px] flex items-center gap-2 px-4">
+                                        <VolumeIcon className="w-6 h-6 text-primary" />
+                                        <Slider
+                                            defaultValue={[volume * 100]}
+                                            max={100}
+                                            step={1}
+                                            className="w-full"
+                                            onValueChange={(value) => setVolume(value[0] / 100)}
+                                            aria-label="Volume control"
+                                        />
                                     </div>
                                 </CardContent>
                             </Card>
@@ -502,5 +496,3 @@ export function RadioPage() {
         </>
     );
 }
-
-    
