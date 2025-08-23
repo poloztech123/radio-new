@@ -4,10 +4,9 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Play, Pause, Volume2, Volume1, VolumeX, Radio, CalendarDays, Music, Info, Share2, Copy, Loader2 } from "lucide-react";
+import { Play, Pause, Radio, CalendarDays, Music, Info, Share2, Copy, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Image from 'next/image';
 
@@ -89,7 +88,6 @@ const PictureInPictureIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export function RadioPage() {
     const [isPlaying, setIsPlaying] = useState(false);
-    const [volume, setVolume] = useState(0.5);
     const [schedule, setSchedule] = useState<Schedule>(INITIAL_SCHEDULE);
     const [currentDay, setCurrentDay] = useState('');
     const [isShareSupported, setIsShareSupported] = useState(false);
@@ -144,17 +142,6 @@ export function RadioPage() {
         }
     }, []);
 
-    useEffect(() => {
-        // Handle volume change with AudioContext GainNode if it exists
-        if (audioContextRef.current && audioRef.current) {
-             const source = audioContextRef.current.createMediaElementSource(audioRef.current);
-             const gainNode = audioContextRef.current.createGain();
-             gainNode.gain.value = volume;
-             source.connect(gainNode);
-             gainNode.connect(audioContextRef.current.destination);
-        }
-    }, [volume]);
-
     const handleShare = async () => {
         const shareData = {
             title: 'Mike Dee Radio',
@@ -201,20 +188,16 @@ export function RadioPage() {
         try {
             // Create source node from audio element
             const source = audioContext.createMediaElementSource(audio);
-            const gainNode = audioContext.createGain();
-
-            // Connect source to gain node, analyser, and destination
-            source.connect(gainNode);
-            gainNode.connect(analyser);
+            
+            // Connect source to analyser and destination
+            source.connect(analyser);
             analyser.connect(audioContext.destination);
-
-            // Set initial volume using the gain node
-            gainNode.gain.value = volume;
 
             // Start visualization
             drawVisualizer();
 
-        } catch (error) {
+        } catch (error)
+ {
             console.error("Error setting up audio graph:", error);
         }
     };
@@ -296,14 +279,6 @@ export function RadioPage() {
         }
     }, [isPlaying]); // Re-run when isPlaying changes
 
-     const handleVolumeChange = (value: number[]) => {
-        const newVolume = value[0];
-        setVolume(newVolume);
-        if (audioContextRef.current && audioContextRef.current.destination instanceof GainNode) {
-             (audioContextRef.current.destination as GainNode).gain.value = newVolume;
-        }
-    };
-
     const togglePictureInPicture = async () => {
         if (!isPipSupported || !videoRef.current || !canvasRef.current || !audioRef.current) return;
 
@@ -354,12 +329,6 @@ export function RadioPage() {
             });
         }
     };
-
-    const VolumeIcon = useMemo(() => {
-        if (volume === 0) return VolumeX;
-        if (volume < 0.5) return Volume1;
-        return Volume2;
-    }, [volume]);
 
     return (
         <>
@@ -435,19 +404,6 @@ export function RadioPage() {
                                             {isLoading ? <Loader2 className="w-40 h-40 text-primary animate-spin" /> : (isPlaying ? <Pause className="w-40 h-40 text-primary" /> : <Play className="w-40 h-40 text-primary" />)}
                                         </Button>
                                     </div>
-                                    <div className="w-full max-w-sm px-4">
-                                        <div className="flex items-center gap-3 bg-muted/50 p-2 rounded-full">
-                                            <VolumeIcon className="w-6 h-6 text-primary ml-2" />
-                                            <Slider
-                                                defaultValue={[volume]}
-                                                max={1}
-                                                step={0.05}
-                                                onValueChange={handleVolumeChange}
-                                                className="w-full"
-                                                aria-label="Volume control"
-                                            />
-                                        </div>
-                                    </div>
                                 </CardContent>
                             </Card>
                         </div>
@@ -512,5 +468,3 @@ export function RadioPage() {
         </>
     );
 }
-
-    
