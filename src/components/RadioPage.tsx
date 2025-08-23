@@ -361,7 +361,9 @@ export function RadioPage() {
                          <div className="flex items-center gap-3 justify-center flex-grow">
                              <Radio className="w-8 h-8 text-primary" />
                             <h1 className="text-4xl font-bold font-headline tracking-tighter text-center">
-                                <span className="whitespace-nowrap">Mike Dee</span> <span className="text-primary">Radio</span>
+                                <span>Mike Dee</span>
+                                <br />
+                                <span className="text-primary">Radio</span>
                             </h1>
                         </div>
                          <div className="flex items-center gap-2 justify-self-end">
