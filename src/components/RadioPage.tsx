@@ -2,11 +2,12 @@
 "use client"
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
+import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Play, Pause, Radio, CalendarDays, Music, Info, Share2, Copy, Loader2, Volume2, Volume1, VolumeX } from "lucide-react";
+import { Play, Pause, Radio, CalendarDays, Music, Info, Share2, Copy, Loader2, Volume2, Volume1, VolumeX, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Image from 'next/image';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -358,6 +359,13 @@ export function RadioPage() {
                 
                 <main className="p-4 sm:p-6 lg:p-8">
                     <header className="flex justify-between items-center mb-6">
+                         <div className="flex items-center gap-3">
+                            <Link href="/login" passHref>
+                              <Button variant="ghost" size="icon" aria-label="Admin Login">
+                                <User className="h-5 w-5" />
+                              </Button>
+                            </Link>
+                         </div>
                          <div className="flex items-center gap-3 justify-center flex-grow">
                              <Radio className="w-8 h-8 text-primary" />
                             <h1 className="text-4xl font-bold font-headline tracking-tighter text-center">
@@ -401,7 +409,7 @@ export function RadioPage() {
                     </div>
 
                     <div className="flex flex-col gap-8 items-center">
-                        <div className="w-full max-w-lg">
+                        <div className="w-full max-w-sm">
                             <Card className="bg-card/70 backdrop-blur-lg border-border/50 shadow-2xl shadow-black/20">
                                 <CardHeader className="text-center">
                                     <CardTitle className="font-headline text-3xl">Making Life Interesting</CardTitle>
@@ -409,30 +417,32 @@ export function RadioPage() {
                                 </CardHeader>
                                 <CardContent className="flex flex-col items-center justify-center gap-6 p-6">
                                     <div className="flex items-center justify-center gap-4">
-                                        <div className="relative w-52 h-52">
+                                        <div className="relative w-44 h-44">
                                             <div className={`absolute inset-0 bg-primary/20 rounded-full transition-transform duration-500 ${isPlaying ? 'animate-pulse scale-110' : 'scale-100'}`}></div>
                                             <Button
                                                 onClick={togglePlayPause}
                                                 variant="outline"
                                                 size="icon"
-                                                              className="relative z-10 w-52 h-52 rounded-full hover:bg-background/80 border-4 border-primary shadow-[0_0_50px_20px_var(--primary)] transition-transform hover:scale-105 flex items-center justify-center"
+                                                className="relative z-10 w-44 h-44 rounded-full hover:bg-background/80 border-4 border-primary shadow-[0_0_40px_15px_var(--primary)] transition-transform hover:scale-105 flex items-center justify-center"
                                                 aria-label={isPlaying ? 'Pause' : 'Play'}
                                                 disabled={isLoading}
                                             >
-                                                {isLoading ? <Loader2 className="w-40 h-40 text-primary animate-spin" /> : (isPlaying ? <Pause className="w-40 h-40 text-primary" /> : <Play className="w-40 h-40 text-primary" />)}
+                                                {isLoading ? <Loader2 className="w-28 h-28 text-primary animate-spin" /> : (isPlaying ? <Pause className="w-28 h-28 text-primary" /> : <Play className="w-28 h-28 text-primary" />)}
                                             </Button>
                                         </div>
                                     </div>
-                                    <div className="w-full max-w-xs flex items-center gap-3 px-4 pt-4">
-                                        <VolumeIcon className="w-6 h-6 text-primary" />
-                                        <Slider
-                                            defaultValue={[volume * 100]}
-                                            max={100}
-                                            step={1}
-                                            className="w-full"
-                                            onValueChange={(value) => setVolume(value[0] / 100)}
-                                            aria-label="Volume control"
-                                        />
+                                    <div className="w-full max-w-xs flex flex-col items-center gap-4 px-4 pt-4">
+                                        <div className="w-full flex items-center gap-3">
+                                            <VolumeIcon className="w-6 h-6 text-primary" />
+                                            <Slider
+                                                defaultValue={[volume * 100]}
+                                                max={100}
+                                                step={1}
+                                                className="w-full"
+                                                onValueChange={(value) => setVolume(value[0] / 100)}
+                                                aria-label="Volume control"
+                                            />
+                                        </div>
                                     </div>
                                 </CardContent>
                             </Card>
