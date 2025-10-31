@@ -109,7 +109,14 @@ export function RadioPage() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
+        const handleStorageChange = (event: StorageEvent) => {
+            if (event.key === CRAWLING_TEXT_STORAGE_KEY && event.newValue) {
+                setAdText(event.newValue);
+            }
+        };
+
         if (typeof window !== 'undefined') {
+            window.addEventListener('storage', handleStorageChange);
             setIsShareSupported(!!navigator.share);
 
             const storedText = localStorage.getItem(CRAWLING_TEXT_STORAGE_KEY);
@@ -130,12 +137,11 @@ export function RadioPage() {
         const currentDayName = days[dayIndex];
         setCurrentDay(currentDayName.toLowerCase());
         
-        // Initialize AudioContext
         if (typeof window !== 'undefined' && !audioContextRef.current) {
             audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
             analyserRef.current = audioContextRef.current.createAnalyser();
             if (analyserRef.current) {
-                analyserRef.current.fftSize = 256; // Smaller FFT size for simpler visualization
+                analyserRef.current.fftSize = 256; 
             }
         }
 
@@ -149,7 +155,14 @@ export function RadioPage() {
             return () => {
                 video.removeEventListener('enterpictureinpicture', onEnterPip);
                 video.removeEventListener('leavepictureinpicture', onLeavePip);
+                window.removeEventListener('storage', handleStorageChange);
             };
+        }
+
+        return () => {
+             if (typeof window !== 'undefined') {
+                window.removeEventListener('storage', handleStorageChange);
+            }
         }
     }, []);
 
@@ -157,7 +170,7 @@ export function RadioPage() {
         const shareData = {
             title: 'Mike Dee Radio',
             text: 'Check out Mike Dee Radio - Live streaming radio!',
-            url: 'https://play.google.com/store/apps/details?id=co.median.android.mpywwq&hl=en', // Replace with your actual Play Store link
+            url: 'https://play.google.com/store/apps/details?id=co.median.android.mpywwq&hl=en',
         };
 
         if (navigator.share) {
@@ -173,7 +186,7 @@ export function RadioPage() {
             }
         } else {
             try {
-                await navigator.clipboard.writeText('https://play.google.com/store/apps/details?id=co.median.android.mpywwq&hl=en'); // Replace with your actual Play Store link
+                await navigator.clipboard.writeText('https://play.google.com/store/apps/details?id=co.median.android.mpywwq&hl=en');
                 toast({
                     title: "Link Copied",
                     description: "The radio link has been copied to your clipboard.",
@@ -197,14 +210,11 @@ export function RadioPage() {
         if (!audio || !audioContext || !analyser || !canvas) return;
 
         try {
-            // Create source node from audio element
             const source = audioContext.createMediaElementSource(audio);
             
-            // Connect source to analyser and destination
             source.connect(analyser);
             analyser.connect(audioContext.destination);
 
-            // Start visualization
             drawVisualizer();
 
         } catch (error)
@@ -258,7 +268,7 @@ export function RadioPage() {
         } else {
             if (!audio.src) {
                 audio.src = STREAM_URL;
-                audio.load(); // Force load
+                audio.load();
             }
             audio.play()
                 .then(() => {
@@ -290,11 +300,10 @@ export function RadioPage() {
     }, [volume]);
 
     useEffect(() => {
-        // Start setting up audio graph only when the stream is playing
         if (isPlaying && audioRef.current && audioContextRef.current && analyserRef.current && canvasRef.current) {
            setupAudioGraph();
         }
-    }, [isPlaying]); // Re-run when isPlaying changes
+    }, [isPlaying]);
 
     const togglePictureInPicture = async () => {
         if (!isPipSupported || !videoRef.current || !canvasRef.current || !audioRef.current) return;
@@ -424,17 +433,17 @@ export function RadioPage() {
                                 </CardHeader>
                                 <CardContent className="flex flex-col items-center justify-center gap-6 p-6">
                                     <div className="flex items-center justify-center gap-4">
-                                        <div className="relative w-44 h-44">
+                                        <div className="relative w-36 h-36">
                                             <div className={`absolute inset-0 bg-primary/20 rounded-full transition-transform duration-500 ${isPlaying ? 'animate-pulse scale-110' : 'scale-100'}`}></div>
                                             <Button
                                                 onClick={togglePlayPause}
                                                 variant="outline"
                                                 size="icon"
-                                                className="relative z-10 w-44 h-44 rounded-full hover:bg-background/80 border-4 border-primary shadow-[0_0_40px_15px_var(--primary)] transition-transform hover:scale-105 flex items-center justify-center"
+                                                className="relative z-10 w-36 h-36 rounded-full hover:bg-background/80 border-4 border-primary shadow-[0_0_40px_15px_var(--primary)] transition-transform hover:scale-105 flex items-center justify-center"
                                                 aria-label={isPlaying ? 'Pause' : 'Play'}
                                                 disabled={isLoading}
                                             >
-                                                {isLoading ? <Loader2 className="w-28 h-28 text-primary animate-spin" /> : (isPlaying ? <Pause className="w-28 h-28 text-primary" /> : <Play className="w-28 h-28 text-primary" />)}
+                                                {isLoading ? <Loader2 className="w-24 h-24 text-primary animate-spin" /> : (isPlaying ? <Pause className="w-24 h-24 text-primary" /> : <Play className="w-24 h-24 text-primary" />)}
                                             </Button>
                                         </div>
                                     </div>
