@@ -13,7 +13,8 @@ import Image from 'next/image';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
 
-const AD_TEXT = "Chali Royal Guest House is Jinja's home away from home, Ghokale Rd. Akwi fashions brings the best out of your looks with their passion in design Iganga road Jinja city. Magnetic looks saloon explains your right to look elegant. Lady Alice Mulooki Rd Jinja. HARED Petroleum has the best pure fuel and oil for your engine and with best services all across the country  ** Contact Mike Dee for your radio set up, Website design, App development, Music instrument lessons, DJ lessons, presentation lessons. For graphics design lessons and website development lessons contact us at Mike Dee Radio. Contact Mike Dee for any coverage and product marketing. Let's help you see results instantly. Send your info that you would like to be aired on our WhatsApp 075 666 04 05. Opinions, regards, debates e.t.c. Nuwa electronics on Kutch road behind lukanga plaza is the leading source of all spare parts for TV, radios, amplifiers, computers, mixers, DVDs. They also have new electronic equipment and all accessories.call 0755293504 / 0779537263. Butterfly fumigation and cleaning, slashing, sewage unblocking call 0702418492. Listen to the radio for details. Mob Tech: Your One-Stop Phone Centre We offer hire purchase on all phones 0702648160 or 0753373833  ";
+const DEFAULT_AD_TEXT = "Chali Royal Guest House is Jinja's home away from home, Ghokale Rd. Akwi fashions brings the best out of your looks with their passion in design Iganga road Jinja city. Magnetic looks saloon explains your right to look elegant. Lady Alice Mulooki Rd Jinja. HARED Petroleum has the best pure fuel and oil for your engine and with best services all across the country  ** Contact Mike Dee for your radio set up, Website design, App development, Music instrument lessons, DJ lessons, presentation lessons. For graphics design lessons and website development lessons contact us at Mike Dee Radio. Contact Mike Dee for any coverage and product marketing. Let's help you see results instantly. Send your info that you would like to be aired on our WhatsApp 075 666 04 05. Opinions, regards, debates e.t.c. Nuwa electronics on Kutch road behind lukanga plaza is the leading source of all spare parts for TV, radios, amplifiers, computers, mixers, DVDs. They also have new electronic equipment and all accessories.call 0755293504 / 0779537263. Butterfly fumigation and cleaning, slashing, sewage unblocking call 0702418492. Listen to the radio for details. Mob Tech: Your One-Stop Phone Centre We offer hire purchase on all phones 0702648160 or 0753373833  ";
+const CRAWLING_TEXT_STORAGE_KEY = 'crawlingText';
 const STREAM_URL = "https://stream.radiojar.com/9nesgw002hcwv";
 
 const INITIAL_SCHEDULE = {
@@ -93,6 +94,7 @@ export function RadioPage() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [volume, setVolume] = useState(0.8);
     const [schedule, setSchedule] = useState<Schedule>(INITIAL_SCHEDULE);
+    const [adText, setAdText] = useState(DEFAULT_AD_TEXT);
     const [currentDay, setCurrentDay] = useState('');
     const [isShareSupported, setIsShareSupported] = useState(false);
     const [isPipSupported, setIsPipSupported] = useState(false);
@@ -109,6 +111,11 @@ export function RadioPage() {
     useEffect(() => {
         if (typeof window !== 'undefined') {
             setIsShareSupported(!!navigator.share);
+
+            const storedText = localStorage.getItem(CRAWLING_TEXT_STORAGE_KEY);
+            if (storedText) {
+                setAdText(storedText);
+            }
 
             const audioEl = document.createElement('audio');
             const isCaptureStreamSupported = typeof (audioEl as any).captureStream === 'function';
@@ -403,7 +410,7 @@ export function RadioPage() {
                         </div>
                         <div className="whitespace-nowrap ml-8">
                             <span className="inline-block text-2xl text-primary-foreground font-semibold animate-marquee-slow hover:pause">
-                                {AD_TEXT.repeat(3)}
+                                {adText.repeat(3)}
                             </span>
                         </div>                        
                     </div>
