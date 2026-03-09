@@ -200,7 +200,7 @@ export function RadioPage() {
             source.connect(analyser);
             analyser.connect(audioContext.destination);
         } catch (error) {
-            // Already connected, ignore
+            // Likely already connected or CORS restricted
         }
     };
 
@@ -222,6 +222,17 @@ export function RadioPage() {
                 
                 const currentUrl = localStorage.getItem(STREAM_URL_STORAGE_KEY) || DEFAULT_STREAM_URL;
                 
+                // Safety check for mixed content
+                if (window.location.protocol === 'https:' && currentUrl.startsWith('http:')) {
+                    toast({
+                        title: "Security Block",
+                        description: "Your browser blocks HTTP streams on HTTPS sites. Please use an HTTPS stream URL (starting with https://).",
+                        variant: "destructive",
+                    });
+                    setIsLoading(false);
+                    return;
+                }
+
                 if (audio.src !== currentUrl) {
                     audio.src = currentUrl;
                     audio.load();
@@ -234,7 +245,7 @@ export function RadioPage() {
                 console.error("Playback failed:", error);
                 toast({
                     title: "Playback Error",
-                    description: "Could not play the stream. Please check your URL in the Admin panel.",
+                    description: "Could not play the stream. Ensure the URL is a direct audio link (e.g. ends in .mp3) and uses HTTPS.",
                     variant: "destructive",
                 });
                 setIsPlaying(false);
@@ -298,7 +309,7 @@ export function RadioPage() {
     return (
         <>
             <video ref={videoRef} muted style={{ display: 'none' }} playsInline />
-            <audio ref={audioRef} crossOrigin="anonymous" preload="auto" />
+            <audio ref={audioRef} preload="auto" />
             <canvas ref={canvasRef} width="512" height="512" style={{ display: 'none' }}></canvas>
             
             <div className="relative min-h-screen w-full overflow-hidden bg-background text-foreground">

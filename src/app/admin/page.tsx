@@ -81,7 +81,14 @@ export default function AdminPage() {
               value={streamUrl}
               onChange={(e) => setStreamUrl(e.target.value)}
             />
-            <p className="text-xs text-muted-foreground italic">Tip: Ensure the URL is an HTTPS direct link to the audio stream.</p>
+            <div className="bg-muted p-3 rounded-md border border-border">
+                <p className="text-xs font-semibold uppercase tracking-wider mb-1">Important Instructions:</p>
+                <ul className="text-xs text-muted-foreground list-disc pl-4 space-y-1">
+                    <li>Use <strong>HTTPS</strong> URLs (starting with <code>https://</code>). Browsers often block HTTP streams on secure sites.</li>
+                    <li>Ensure it is a <strong>direct audio link</strong>. It should usually end in <code>.mp3</code>, <code>.aac</code>, or have <code>/stream</code> at the end.</li>
+                    <li>If using <em>Listen2MyRadio</em>, look for the "Direct Link" in your broadcaster panel.</li>
+                </ul>
+            </div>
           </div>
           <div className="grid gap-2">
             <Label htmlFor="crawlingText">Crawling Text</Label>
