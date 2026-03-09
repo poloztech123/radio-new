@@ -95,9 +95,6 @@ export function RadioPage() {
     
     const audioRef = useRef<HTMLAudioElement>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
-    const audioContextRef = useRef<AudioContext | null>(null);
-    const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
-    const analyserRef = useRef<AnalyserNode | null>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
@@ -182,32 +179,6 @@ export function RadioPage() {
         }
     };
 
-    const setupAudioGraph = () => {
-        const audio = audioRef.current;
-        if (!audio) return;
-
-        try {
-            if (!audioContextRef.current) {
-                audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-            }
-            
-            if (!analyserRef.current) {
-                analyserRef.current = audioContextRef.current.createAnalyser();
-                analyserRef.current.fftSize = 256;
-            }
-
-            if (!sourceRef.current) {
-                sourceRef.current = audioContextRef.current.createMediaElementSource(audio);
-                sourceRef.current.connect(analyserRef.current);
-                analyserRef.current.connect(audioContextRef.current.destination);
-            }
-        } catch (error) {
-            // If setupAudioGraph fails (common with CORS), we still want the audio to play.
-            // We just won't have visualization data.
-            console.warn("AudioContext setup failed (usually due to CORS). Sound should still play.", error);
-        }
-    };
-
     const togglePlayPause = async () => {
         const audio = audioRef.current;
         if (!audio) return;
@@ -225,7 +196,7 @@ export function RadioPage() {
                 if (typeof window !== 'undefined' && window.location.protocol === 'https:' && currentUrl.startsWith('http:')) {
                     toast({
                         title: "Security Block",
-                        description: "Your browser blocks HTTP streams on HTTPS sites. Please use an HTTPS stream URL.",
+                        description: "Your browser blocks HTTP streams on HTTPS sites. Please ensure your URL starts with https://.",
                         variant: "destructive",
                     });
                     setIsLoading(false);
@@ -239,19 +210,12 @@ export function RadioPage() {
 
                 audio.volume = volume;
                 await audio.play();
-                
-                // Try to setup visualizer, but don't let it block playback
-                setupAudioGraph();
-                if (audioContextRef.current?.state === 'suspended') {
-                    await audioContextRef.current.resume();
-                }
-
                 setIsPlaying(true);
             } catch (error) {
                 console.error("Playback failed:", error);
                 toast({
                     title: "Playback Error",
-                    description: "Check your internet or stream URL. Ensure it's a direct audio link.",
+                    description: "The stream could not be played. This could be due to network issues, an invalid URL, or browser restrictions.",
                     variant: "destructive",
                 });
                 setIsPlaying(false);
@@ -315,7 +279,6 @@ export function RadioPage() {
     return (
         <>
             <video ref={videoRef} muted style={{ display: 'none' }} playsInline />
-            {/* Removed crossOrigin="anonymous" to allow playback of streams without CORS headers */}
             <audio ref={audioRef} preload="auto" />
             <canvas ref={canvasRef} width="512" height="512" style={{ display: 'none' }}></canvas>
             
