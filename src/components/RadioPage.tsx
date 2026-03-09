@@ -351,7 +351,7 @@ export function RadioPage() {
                                 </CardHeader>
                                 <CardContent className="flex flex-col items-center justify-center gap-6 p-6">
                                     <div className="flex items-center justify-center gap-4">
-                                        <div className="relative w-28 h-28 md:w-32 md:h-32">
+                                        <div className="relative w-32 h-32 md:w-40 md:h-40">
                                             <div className={`absolute inset-0 bg-primary/20 rounded-full transition-transform duration-500 ${isPlaying ? 'animate-pulse scale-110' : 'scale-100'}`}></div>
                                             <Button
                                                 onClick={togglePlayPause}
@@ -361,7 +361,15 @@ export function RadioPage() {
                                                 aria-label={isPlaying ? 'Pause' : 'Play'}
                                                 disabled={isLoading}
                                             >
-                                                {isLoading ? <Loader2 className="w-16 h-16 text-primary animate-spin" /> : (isPlaying ? <Pause className="w-16 h-16 text-primary" /> : <Play className="w-16 h-16 text-primary ml-2" />)}
+                                                {isLoading ? (
+                                                  <Loader2 className="w-20 h-20 md:w-24 md:h-24 text-primary animate-spin" />
+                                                ) : (
+                                                  isPlaying ? (
+                                                    <Pause className="w-20 h-20 md:w-24 md:h-24 text-primary" />
+                                                  ) : (
+                                                    <Play className="w-20 h-20 md:w-24 md:h-24 text-primary ml-3" />
+                                                  )
+                                                )}
                                             </Button>
                                         </div>
                                     </div>
