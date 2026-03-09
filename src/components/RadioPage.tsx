@@ -163,7 +163,7 @@ export function RadioPage() {
         const shareData = {
             title: 'Mike Dee Radio',
             text: 'Check out Mike Dee Radio - Live streaming radio!',
-            url: window.location.href,
+            url: typeof window !== 'undefined' ? window.location.href : '',
         };
 
         if (navigator.share) {
@@ -202,7 +202,9 @@ export function RadioPage() {
                 analyserRef.current.connect(audioContextRef.current.destination);
             }
         } catch (error) {
-            console.warn("AudioContext visualizer setup failed. Audio will play normally without visuals.", error);
+            // If setupAudioGraph fails (common with CORS), we still want the audio to play.
+            // We just won't have visualization data.
+            console.warn("AudioContext setup failed (usually due to CORS). Sound should still play.", error);
         }
     };
 
@@ -220,7 +222,7 @@ export function RadioPage() {
             try {
                 const currentUrl = localStorage.getItem(STREAM_URL_STORAGE_KEY) || DEFAULT_STREAM_URL;
                 
-                if (window.location.protocol === 'https:' && currentUrl.startsWith('http:')) {
+                if (typeof window !== 'undefined' && window.location.protocol === 'https:' && currentUrl.startsWith('http:')) {
                     toast({
                         title: "Security Block",
                         description: "Your browser blocks HTTP streams on HTTPS sites. Please use an HTTPS stream URL.",
@@ -238,7 +240,7 @@ export function RadioPage() {
                 audio.volume = volume;
                 await audio.play();
                 
-                // Initialize visualizer after play starts to satisfy browser autoplay policies
+                // Try to setup visualizer, but don't let it block playback
                 setupAudioGraph();
                 if (audioContextRef.current?.state === 'suspended') {
                     await audioContextRef.current.resume();
@@ -249,7 +251,7 @@ export function RadioPage() {
                 console.error("Playback failed:", error);
                 toast({
                     title: "Playback Error",
-                    description: "Check your internet or stream URL. Use HTTPS links for better results.",
+                    description: "Check your internet or stream URL. Ensure it's a direct audio link.",
                     variant: "destructive",
                 });
                 setIsPlaying(false);
@@ -313,7 +315,8 @@ export function RadioPage() {
     return (
         <>
             <video ref={videoRef} muted style={{ display: 'none' }} playsInline />
-            <audio ref={audioRef} preload="auto" crossOrigin="anonymous" />
+            {/* Removed crossOrigin="anonymous" to allow playback of streams without CORS headers */}
+            <audio ref={audioRef} preload="auto" />
             <canvas ref={canvasRef} width="512" height="512" style={{ display: 'none' }}></canvas>
             
             <div className="relative min-h-screen w-full overflow-hidden bg-background text-foreground">
