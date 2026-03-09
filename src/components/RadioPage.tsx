@@ -96,6 +96,7 @@ export function RadioPage() {
     const audioRef = useRef<HTMLAudioElement>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
     const audioContextRef = useRef<AudioContext | null>(null);
+    const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
     const analyserRef = useRef<AnalyserNode | null>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -136,14 +137,6 @@ export function RadioPage() {
         const dayIndex = new Date().getDay();
         const currentDayName = days[dayIndex];
         setCurrentDay(currentDayName.toLowerCase());
-        
-        if (typeof window !== 'undefined' && !audioContextRef.current) {
-            audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-            analyserRef.current = audioContextRef.current.createAnalyser();
-            if (analyserRef.current) {
-                analyserRef.current.fftSize = 256; 
-            }
-        }
 
         const video = videoRef.current;
         if (video) {
@@ -191,16 +184,25 @@ export function RadioPage() {
 
     const setupAudioGraph = () => {
         const audio = audioRef.current;
-        const audioContext = audioContextRef.current;
-        const analyser = analyserRef.current;
-        if (!audio || !audioContext || !analyser) return;
+        if (!audio) return;
 
         try {
-            const source = audioContext.createMediaElementSource(audio);
-            source.connect(analyser);
-            analyser.connect(audioContext.destination);
+            if (!audioContextRef.current) {
+                audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+            }
+            
+            if (!analyserRef.current) {
+                analyserRef.current = audioContextRef.current.createAnalyser();
+                analyserRef.current.fftSize = 256;
+            }
+
+            if (!sourceRef.current) {
+                sourceRef.current = audioContextRef.current.createMediaElementSource(audio);
+                sourceRef.current.connect(analyserRef.current);
+                analyserRef.current.connect(audioContextRef.current.destination);
+            }
         } catch (error) {
-            // Likely already connected or CORS restricted
+            console.warn("AudioContext visualizer setup failed. Audio will play normally without visuals.", error);
         }
     };
 
@@ -216,17 +218,12 @@ export function RadioPage() {
             setIsLoading(false);
         } else {
             try {
-                if (audioContextRef.current?.state === 'suspended') {
-                    await audioContextRef.current.resume();
-                }
-                
                 const currentUrl = localStorage.getItem(STREAM_URL_STORAGE_KEY) || DEFAULT_STREAM_URL;
                 
-                // Safety check for mixed content
                 if (window.location.protocol === 'https:' && currentUrl.startsWith('http:')) {
                     toast({
                         title: "Security Block",
-                        description: "Your browser blocks HTTP streams on HTTPS sites. Please use an HTTPS stream URL (starting with https://).",
+                        description: "Your browser blocks HTTP streams on HTTPS sites. Please use an HTTPS stream URL.",
                         variant: "destructive",
                     });
                     setIsLoading(false);
@@ -238,14 +235,21 @@ export function RadioPage() {
                     audio.load();
                 }
 
+                audio.volume = volume;
                 await audio.play();
-                setIsPlaying(true);
+                
+                // Initialize visualizer after play starts to satisfy browser autoplay policies
                 setupAudioGraph();
+                if (audioContextRef.current?.state === 'suspended') {
+                    await audioContextRef.current.resume();
+                }
+
+                setIsPlaying(true);
             } catch (error) {
                 console.error("Playback failed:", error);
                 toast({
                     title: "Playback Error",
-                    description: "Could not play the stream. Ensure the URL is a direct audio link (e.g. ends in .mp3) and uses HTTPS.",
+                    description: "Check your internet or stream URL. Use HTTPS links for better results.",
                     variant: "destructive",
                 });
                 setIsPlaying(false);
@@ -285,7 +289,7 @@ export function RadioPage() {
                     ctx.fillStyle = 'black';
                     ctx.fillRect(0, 0, canvas.width, canvas.height);
                     const logo = new window.Image();
-                    logo.crossOrigin = "Anonymous";
+                    logo.crossOrigin = "anonymous";
                     logo.src = "https://mikedeeradio.com/img/MIKE%20DEE%20RADIO%201.jpg";
                     logo.onload = () => {
                         ctx.drawImage(logo, 56, 56, 400, 400);
@@ -309,7 +313,7 @@ export function RadioPage() {
     return (
         <>
             <video ref={videoRef} muted style={{ display: 'none' }} playsInline />
-            <audio ref={audioRef} preload="auto" />
+            <audio ref={audioRef} preload="auto" crossOrigin="anonymous" />
             <canvas ref={canvasRef} width="512" height="512" style={{ display: 'none' }}></canvas>
             
             <div className="relative min-h-screen w-full overflow-hidden bg-background text-foreground">
