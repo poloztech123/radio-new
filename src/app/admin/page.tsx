@@ -6,26 +6,33 @@ import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 
 const CRAWLING_TEXT_STORAGE_KEY = 'crawlingText';
+const STREAM_URL_STORAGE_KEY = 'streamUrl';
 const DEFAULT_CRAWLING_TEXT = "Chali Royal Guest House is Jinja's home away from home, Ghokale Rd. Akwi fashions brings the best out of your looks with their passion in design Iganga road Jinja city. Magnetic looks saloon explains your right to look elegant. Lady Alice Mulooki Rd Jinja. HARED Petroleum has the best pure fuel and oil for your engine and with best services all across the country  ** Contact Mike Dee for your radio set up, Website design, App development, Music instrument lessons, DJ lessons, presentation lessons. For graphics design lessons and website development lessons contact us at Mike Dee Radio. Contact Mike Dee for any coverage and product marketing. Let's help you see results instantly. Send your info that you would like to be aired on our WhatsApp 075 666 04 05. Opinions, regards, debates e.t.c. Nuwa electronics on Kutch road behind lukanga plaza is the leading source of all spare parts for TV, radios, amplifiers, computers, mixers, DVDs. They also have new electronic equipment and all accessories.call 0755293504 / 0779537263. Butterfly fumigation and cleaning, slashing, sewage unblocking call 0702418492. Listen to the radio for details. Mob Tech: Your One-Stop Phone Centre We offer hire purchase on all phones 0702648160 or 0753373833  ";
+const DEFAULT_STREAM_URL = "https://uk20freenew.listen2myradio.com/live.mp3?typeportmount=s1_21833_stream_57657585";
 
 export default function AdminPage() {
   const [crawlingText, setCrawlingText] = useState('');
+  const [streamUrl, setStreamUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
 
   useEffect(() => {
-    // Mock auth check
     const isAuthenticated = localStorage.getItem('isAuthenticated');
     if (isAuthenticated !== 'true') {
       router.push('/login');
     }
     
     const savedText = localStorage.getItem(CRAWLING_TEXT_STORAGE_KEY);
+    const savedUrl = localStorage.getItem(STREAM_URL_STORAGE_KEY);
+    
     setCrawlingText(savedText || DEFAULT_CRAWLING_TEXT);
+    setStreamUrl(savedUrl || DEFAULT_STREAM_URL);
 
   }, [router]);
 
@@ -33,14 +40,15 @@ export default function AdminPage() {
     setIsLoading(true);
     try {
       localStorage.setItem(CRAWLING_TEXT_STORAGE_KEY, crawlingText);
+      localStorage.setItem(STREAM_URL_STORAGE_KEY, streamUrl);
       toast({
         title: "Content Saved",
-        description: "The crawling text has been updated.",
+        description: "Admin settings have been updated.",
       });
     } catch (error) {
       toast({
         title: "Error Saving",
-        description: "Could not save the text. Please try again.",
+        description: "Could not save settings. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -61,18 +69,32 @@ export default function AdminPage() {
       </div>
       <Card className="w-full max-w-4xl">
         <CardHeader>
-          <CardTitle>Manage Crawling Text</CardTitle>
-          <CardDescription>Update the text that scrolls across the top of the main page.</CardDescription>
+          <CardTitle>Manage Radio Settings</CardTitle>
+          <CardDescription>Update the stream URL and the crawling banner text.</CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-4">
-          <Textarea
-            placeholder="Enter the text to be displayed in the crawling banner..."
-            value={crawlingText}
-            onChange={(e) => setCrawlingText(e.target.value)}
-            rows={10}
-          />
-          <Button onClick={handleSave} disabled={isLoading}>
-            {isLoading ? 'Saving...' : 'Save Changes'}
+        <CardContent className="grid gap-6">
+          <div className="grid gap-2">
+            <Label htmlFor="streamUrl">Radio Stream URL</Label>
+            <Input
+              id="streamUrl"
+              placeholder="Enter the live streaming URL (e.g., https://.../live.mp3)"
+              value={streamUrl}
+              onChange={(e) => setStreamUrl(e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground italic">Tip: Ensure the URL is an HTTPS direct link to the audio stream.</p>
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="crawlingText">Crawling Text</Label>
+            <Textarea
+              id="crawlingText"
+              placeholder="Enter the text to be displayed in the crawling banner..."
+              value={crawlingText}
+              onChange={(e) => setCrawlingText(e.target.value)}
+              rows={8}
+            />
+          </div>
+          <Button onClick={handleSave} disabled={isLoading} className="w-full">
+            {isLoading ? 'Saving...' : 'Save All Changes'}
           </Button>
         </CardContent>
       </Card>
