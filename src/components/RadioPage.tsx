@@ -145,7 +145,9 @@ export function RadioPage() {
             return () => {
                 video.removeEventListener('enterpictureinpicture', onEnterPip);
                 video.removeEventListener('leavepictureinpicture', onLeavePip);
-                window.removeEventListener('storage', handleStorageChange);
+                if (typeof window !== 'undefined') {
+                    window.removeEventListener('storage', handleStorageChange);
+                }
             };
         }
 
@@ -334,7 +336,7 @@ export function RadioPage() {
                             <Info className="w-5 h-5 text-primary"/>
                         </div>
                         <div className="whitespace-nowrap ml-8">
-                            <span className="inline-block text-xl md:text-2xl text-primary font-semibold animate-marquee-slow hover:pause">
+                            <span className="inline-block text-xl md:text-2xl text-white font-semibold animate-marquee-slow hover:pause">
                                 {adText.repeat(3)}
                             </span>
                         </div>                        
