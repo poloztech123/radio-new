@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
@@ -16,7 +17,6 @@ const DEFAULT_AD_TEXT = "Chali Royal Guest House is Jinja's home away from home,
 const DEFAULT_STREAM_URL = "https://uk20freenew.listen2myradio.com/live.mp3?typeportmount=s1_21833_stream_57657585";
 const CRAWLING_TEXT_STORAGE_KEY = 'crawlingText';
 const STREAM_URL_STORAGE_KEY = 'streamUrl';
-const LOGO_URL = "https://mikedeeradio.com/img/MIKE%20DEE%20RADIO%201.jpg";
 
 const INITIAL_SCHEDULE = {
    Monday: [
@@ -91,7 +91,7 @@ export function RadioPage() {
     const [isPipSupported, setIsPipSupported] = useState(false);
     const [isPipActive, setIsPipActive] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [logoSrc, setLogoSrc] = useState(LOGO_URL);
+    const [logoSrc, setLogoSrc] = useState(placeholders.logo.url);
     const { toast } = useToast();
     
     const audioRef = useRef<HTMLAudioElement>(null);
@@ -315,7 +315,6 @@ export function RadioPage() {
                                     <span>Mike Dee</span>
                                     <span className="text-primary ml-2">Radio</span>
                                 </h1>
-                                <p className="text-xs text-muted-foreground uppercase tracking-widest hidden md:block">Making Life Interesting</p>
                              </div>
                         </div>
                          <div className="flex items-center gap-2">
@@ -345,7 +344,7 @@ export function RadioPage() {
                         <div className="w-full max-w-md">
                             <Card className="bg-card/70 backdrop-blur-lg border-border/50 shadow-2xl shadow-black/20">
                                 <CardHeader className="text-center">
-                                    <CardTitle className="font-headline text-2xl md:text-3xl">Live Player</CardTitle>
+                                    <CardTitle className="font-headline text-2xl md:text-3xl">Making Life Interesting</CardTitle>
                                     <CardDescription>Streaming Worldwide 24/7</CardDescription>
                                 </CardHeader>
                                 <CardContent className="flex flex-col items-center justify-center gap-6 p-6">
