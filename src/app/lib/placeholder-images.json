@@ -1,0 +1,8 @@
+{
+  "logoFallback": {
+    "url": "https://picsum.photos/seed/radio123/400/400",
+    "width": 400,
+    "height": 400,
+    "hint": "radio station"
+  }
+}
