@@ -9,13 +9,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Play, Pause, Radio, CalendarDays, Music, Info, Share2, Copy, Loader2, Volume2, Volume1, VolumeX, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import Image from 'next/image';
 import { Slider } from "@/components/ui/slider";
 
 const DEFAULT_AD_TEXT = "Chali Royal Guest House is Jinja's home away from home, Ghokale Rd. Akwi fashions brings the best out of your looks with their passion in design Iganga road Jinja city. Magnetic looks saloon explains your right to look elegant. Lady Alice Mulooki Rd Jinja. HARED Petroleum has the best pure fuel and oil for your engine and with best services all across the country  ** Contact Mike Dee for your radio set up, Website design, App development, Music instrument lessons, DJ lessons, presentation lessons. For graphics design lessons and website development lessons contact us at Mike Dee Radio. Contact Mike Dee for any coverage and product marketing. Let's help you see results instantly. Send your info that you would like to be aired on our WhatsApp 075 666 04 05. Opinions, regards, debates e.t.c. Nuwa electronics on Kutch road behind lukanga plaza is the leading source of all spare parts for TV, radios, amplifiers, computers, mixers, DVDs. They also have new electronic equipment and all accessories.call 0755293504 / 0779537263. Butterfly fumigation and cleaning, slashing, sewage unblocking call 0702418492. Listen to the radio for details. Mob Tech: Your One-Stop Phone Centre We offer hire purchase on all phones 0702648160 or 0753373833  ";
 const DEFAULT_STREAM_URL = "https://uk20freenew.listen2myradio.com/live.mp3?typeportmount=s1_21833_stream_57657585";
 const CRAWLING_TEXT_STORAGE_KEY = 'crawlingText';
 const STREAM_URL_STORAGE_KEY = 'streamUrl';
+const LOGO_URL = "https://mikedeeradio.com/img/MIKE%20DEE%20RADIO%201.jpg";
 
 const INITIAL_SCHEDULE = {
    Monday: [
@@ -192,7 +192,6 @@ export function RadioPage() {
                 const storedUrl = localStorage.getItem(STREAM_URL_STORAGE_KEY) || DEFAULT_STREAM_URL;
                 const currentUrl = storedUrl.trim();
                 
-                // Explicit HTTPS check to give a better error message
                 if (typeof window !== 'undefined' && window.location.protocol === 'https:' && currentUrl.startsWith('http:')) {
                     toast({
                         title: "Security Block",
@@ -203,12 +202,11 @@ export function RadioPage() {
                     return;
                 }
 
-                // Force reset the audio source to handle live stream buffering issues
                 if (audio.src !== currentUrl) {
                     audio.src = currentUrl;
                 }
                 
-                audio.load(); // Reload the buffer for the live stream
+                audio.load();
                 audio.volume = volume;
                 
                 await audio.play();
@@ -217,7 +215,7 @@ export function RadioPage() {
                 console.error("Playback failed:", error);
                 toast({
                     title: "Playback Error",
-                    description: "The stream could not be played. Ensure you are using a direct audio link (ends in .mp3 or /stream) and it is using HTTPS.",
+                    description: "The stream could not be played. Check your connection or the URL format.",
                     variant: "destructive",
                 });
                 setIsPlaying(false);
@@ -258,7 +256,7 @@ export function RadioPage() {
                     ctx.fillRect(0, 0, canvas.width, canvas.height);
                     const logo = new window.Image();
                     logo.crossOrigin = "anonymous";
-                    logo.src = "https://mikedeeradio.com/img/MIKE%20DEE%20RADIO%201.jpg";
+                    logo.src = LOGO_URL;
                     logo.onload = () => {
                         ctx.drawImage(logo, 56, 56, 400, 400);
                     };
@@ -290,23 +288,31 @@ export function RadioPage() {
                 </div>
                 
                 <main className="p-4 sm:p-6 lg:p-8">
-                    <header className="flex justify-between items-center mb-6 max-w-5xl mx-auto">
-                         <div className="flex items-center gap-3">
-                            <Link href="/login" className="flex items-center">
+                    <header className="flex justify-between items-center mb-6 max-w-5xl mx-auto gap-4">
+                         <div className="flex items-center">
+                            <Link href="/login">
                               <Button variant="ghost" size="icon" aria-label="Admin Login">
-                                <User className="h-5 w-5" />
+                                <User className="h-6 w-6" />
                               </Button>
                             </Link>
                          </div>
-                         <div className="flex items-center gap-3 justify-center flex-grow">
-                             <Radio className="w-8 h-8 text-primary" />
-                            <h1 className="text-3xl md:text-4xl font-bold font-headline tracking-tighter text-center">
-                                <span>Mike Dee</span>
-                                <br />
-                                <span className="text-primary">Radio</span>
-                            </h1>
+                         <div className="flex flex-col md:flex-row items-center gap-3 justify-center flex-grow text-center">
+                             <div className="relative w-16 h-16 md:w-20 md:h-20 rounded-lg overflow-hidden border border-border/50 shadow-md">
+                                <img 
+                                    src={LOGO_URL} 
+                                    alt="Mike Dee Radio Logo" 
+                                    className="w-full h-full object-cover"
+                                />
+                             </div>
+                             <div>
+                                <h1 className="text-2xl md:text-4xl font-bold font-headline tracking-tighter">
+                                    <span>Mike Dee</span>
+                                    <span className="text-primary ml-2">Radio</span>
+                                </h1>
+                                <p className="text-xs text-muted-foreground uppercase tracking-widest hidden md:block">Making Life Interesting</p>
+                             </div>
                         </div>
-                         <div className="flex items-center gap-2 justify-self-end">
+                         <div className="flex items-center gap-2">
                             {isPipSupported && (
                                 <Button onClick={togglePictureInPicture} variant="outline" size="icon" className="shrink-0" aria-label="Toggle PiP">
                                     <PictureInPictureIcon className={`h-5 w-5 ${isPipActive ? "text-primary" : ""}`} />
@@ -317,19 +323,6 @@ export function RadioPage() {
                             </Button>
                         </div>
                     </header>
-
-                    <div className="relative w-full flex justify-center mb-4">
-                        <div className="relative w-[120px] h-[120px] rounded-lg overflow-hidden bg-card/70 border border-border/50 shadow-lg shadow-black/20">
-                            <Image
-                                src="https://mikedeeradio.com/img/MIKE%20DEE%20RADIO%201.jpg"
-                                alt="Logo"
-                                fill
-                                className="object-cover opacity-80"
-								priority
-                                data-ai-hint="radio logo"
-                            />
-                        </div>
-                    </div>
 
                     <div className="relative max-w-4xl mx-auto overflow-hidden bg-card/70 backdrop-blur-lg rounded-lg p-3 border border-border/50 shadow-lg shadow-black/20 mb-8">
                         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none z-10 bg-card/10 backdrop-blur-sm pr-2">
@@ -346,28 +339,28 @@ export function RadioPage() {
                         <div className="w-full max-w-md">
                             <Card className="bg-card/70 backdrop-blur-lg border-border/50 shadow-2xl shadow-black/20">
                                 <CardHeader className="text-center">
-                                    <CardTitle className="font-headline text-2xl md:text-3xl">Making Life Interesting</CardTitle>
+                                    <CardTitle className="font-headline text-2xl md:text-3xl">Live Player</CardTitle>
                                     <CardDescription>Streaming Worldwide 24/7</CardDescription>
                                 </CardHeader>
                                 <CardContent className="flex flex-col items-center justify-center gap-6 p-6">
                                     <div className="flex items-center justify-center gap-4">
-                                        <div className="relative w-32 h-32 md:w-40 md:h-40">
-                                            <div className={`absolute inset-0 bg-primary/20 rounded-full transition-transform duration-500 ${isPlaying ? 'animate-pulse scale-110' : 'scale-100'}`}></div>
+                                        <div className="relative w-40 h-40 md:w-56 md:h-56">
+                                            <div className={`absolute inset-0 bg-primary/10 rounded-full transition-transform duration-500 ${isPlaying ? 'animate-pulse scale-110' : 'scale-100'}`}></div>
                                             <Button
                                                 onClick={togglePlayPause}
                                                 variant="outline"
                                                 size="icon"
-                                                className="relative z-10 w-full h-full rounded-full hover:bg-background/80 border-4 border-primary shadow-[0_0_30px_10px_var(--primary)] transition-transform hover:scale-105 flex items-center justify-center"
+                                                className="relative z-10 w-full h-full rounded-full hover:bg-background/80 border-4 border-primary shadow-[0_0_40px_10px_rgba(249,115,22,0.3)] transition-transform hover:scale-105 flex items-center justify-center bg-card/50"
                                                 aria-label={isPlaying ? 'Pause' : 'Play'}
                                                 disabled={isLoading}
                                             >
                                                 {isLoading ? (
-                                                  <Loader2 className="w-16 h-16 md:w-20 md:h-20 text-primary animate-spin" />
+                                                  <Loader2 className="w-20 h-20 md:w-28 md:h-28 text-primary animate-spin" />
                                                 ) : (
                                                   isPlaying ? (
-                                                    <Pause className="w-16 h-16 md:w-20 md:h-20 text-primary" />
+                                                    <Pause className="w-20 h-20 md:w-28 md:h-28 text-primary fill-primary" />
                                                   ) : (
-                                                    <Play className="w-16 h-16 md:w-20 md:h-20 text-primary ml-2" />
+                                                    <Play className="w-20 h-20 md:w-28 md:h-28 text-primary fill-primary ml-4" />
                                                   )
                                                 )}
                                             </Button>
@@ -450,3 +443,4 @@ export function RadioPage() {
         </>
     );
 }
+
