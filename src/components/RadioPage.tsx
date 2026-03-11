@@ -222,14 +222,15 @@ export function RadioPage() {
                               </Button>
                             </Link>
                          </div>
-                         <div className="flex flex-col items-center gap-6 justify-center flex-grow text-center">
-                             <div>
+                         <div className="flex flex-col items-center gap-4 justify-center flex-grow text-center">
+                             <div className="flex items-center justify-center gap-3">
+                                <Radio className="h-8 w-8 md:h-12 md:w-12 text-primary" />
                                 <h1 className="text-4xl md:text-6xl font-bold font-headline tracking-tighter">
                                     <span>Mike Dee</span>
                                     <span className="text-primary ml-2">Radio</span>
                                 </h1>
                              </div>
-                             <div className="relative w-32 h-32 md:w-56 md:h-56 rounded-2xl overflow-hidden border-2 border-primary/20 shadow-2xl bg-muted group">
+                             <div className="relative w-32 h-32 md:w-56 md:h-56 rounded-2xl overflow-hidden border-2 border-primary/20 shadow-2xl bg-muted group mt-2">
                                 <Image 
                                     src={logoSrc} 
                                     alt="Mike Dee Radio Logo" 
