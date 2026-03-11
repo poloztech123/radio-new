@@ -154,7 +154,7 @@ export function RadioPage() {
                 window.removeEventListener('storage', handleStorageChange);
             }
         }
-    }, [isPlaying]);
+    }, [isPlaying, logoSrc]);
 
     const handleShare = async () => {
         const shareData = {
@@ -305,6 +305,7 @@ export function RadioPage() {
                                     alt="Mike Dee Radio Logo" 
                                     width={80}
                                     height={80}
+                                    priority
                                     className="w-full h-full object-cover"
                                     onError={() => setLogoSrc(placeholders.logoFallback.url)}
                                     data-ai-hint="radio station logo"
@@ -349,23 +350,23 @@ export function RadioPage() {
                                 </CardHeader>
                                 <CardContent className="flex flex-col items-center justify-center gap-6 p-6">
                                     <div className="flex items-center justify-center gap-4">
-                                        <div className="relative w-40 h-40 md:w-64 md:h-64">
+                                        <div className="relative w-48 h-48 md:w-80 md:h-80">
                                             <div className={`absolute inset-0 bg-primary/10 rounded-full transition-transform duration-500 ${isPlaying ? 'animate-pulse scale-110' : 'scale-100'}`}></div>
                                             <Button
                                                 onClick={togglePlayPause}
                                                 variant="outline"
                                                 size="icon"
-                                                className="relative z-10 w-full h-full rounded-full hover:bg-background/80 border-4 border-primary shadow-[0_0_60px_15px_rgba(249,115,22,0.4)] transition-transform hover:scale-105 flex items-center justify-center bg-card/50"
+                                                className="relative z-10 w-full h-full rounded-full hover:bg-background/80 border-4 border-primary shadow-[0_0_80px_20px_rgba(249,115,22,0.4)] transition-transform hover:scale-105 flex items-center justify-center bg-card/50"
                                                 aria-label={isPlaying ? 'Pause' : 'Play'}
                                                 disabled={isLoading}
                                             >
                                                 {isLoading ? (
-                                                  <Loader2 className="w-24 h-24 md:w-40 md:h-40 text-primary animate-spin" />
+                                                  <Loader2 className="w-32 h-32 md:w-56 md:h-56 text-primary animate-spin" />
                                                 ) : (
                                                   isPlaying ? (
-                                                    <Pause className="w-24 h-24 md:w-40 md:h-40 text-primary fill-primary" />
+                                                    <Pause className="w-32 h-32 md:w-56 md:h-56 text-primary fill-primary" />
                                                   ) : (
-                                                    <Play className="w-24 h-24 md:w-40 md:h-40 text-primary fill-primary ml-4" />
+                                                    <Play className="w-32 h-32 md:w-56 md:h-56 text-primary fill-primary ml-4" />
                                                   )
                                                 )}
                                             </Button>
