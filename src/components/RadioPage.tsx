@@ -214,16 +214,22 @@ export function RadioPage() {
                 </div>
                 
                 <main className="p-4 sm:p-6 lg:p-8">
-                    <header className="flex justify-between items-center mb-6 max-w-5xl mx-auto gap-4">
-                         <div className="flex items-center">
+                    <header className="flex justify-between items-start mb-6 max-w-5xl mx-auto gap-4">
+                         <div className="flex items-center pt-2">
                             <Link href="/login">
                               <Button variant="ghost" size="icon" aria-label="Admin Login">
                                 <User className="h-6 w-6" />
                               </Button>
                             </Link>
                          </div>
-                         <div className="flex flex-col md:flex-row items-center gap-4 justify-center flex-grow text-center">
-                             <div className="relative w-20 h-20 md:w-32 md:h-32 rounded-lg overflow-hidden border border-border/50 shadow-xl bg-muted group">
+                         <div className="flex flex-col items-center gap-6 justify-center flex-grow text-center">
+                             <div>
+                                <h1 className="text-4xl md:text-6xl font-bold font-headline tracking-tighter">
+                                    <span>Mike Dee</span>
+                                    <span className="text-primary ml-2">Radio</span>
+                                </h1>
+                             </div>
+                             <div className="relative w-32 h-32 md:w-56 md:h-56 rounded-2xl overflow-hidden border-2 border-primary/20 shadow-2xl bg-muted group">
                                 <Image 
                                     src={logoSrc} 
                                     alt="Mike Dee Radio Logo" 
@@ -234,14 +240,8 @@ export function RadioPage() {
                                     data-ai-hint="radio station logo"
                                 />
                              </div>
-                             <div>
-                                <h1 className="text-3xl md:text-5xl font-bold font-headline tracking-tighter">
-                                    <span>Mike Dee</span>
-                                    <span className="text-primary ml-2">Radio</span>
-                                </h1>
-                             </div>
                         </div>
-                         <div className="flex items-center gap-2">
+                         <div className="flex items-center gap-2 pt-2">
                             <Button onClick={handleShare} variant="outline" size="icon" className="shrink-0" aria-label="Share App">
                                {isShareSupported ? <Share2 className="h-5 w-5" /> : <Copy className="h-5 w-5" />}
                             </Button>
