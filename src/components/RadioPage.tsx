@@ -192,6 +192,7 @@ export function RadioPage() {
                 const storedUrl = localStorage.getItem(STREAM_URL_STORAGE_KEY) || DEFAULT_STREAM_URL;
                 const currentUrl = storedUrl.trim();
                 
+                // Explicit HTTPS check to give a better error message
                 if (typeof window !== 'undefined' && window.location.protocol === 'https:' && currentUrl.startsWith('http:')) {
                     toast({
                         title: "Security Block",
@@ -202,12 +203,14 @@ export function RadioPage() {
                     return;
                 }
 
+                // Force reset the audio source to handle live stream buffering issues
                 if (audio.src !== currentUrl) {
                     audio.src = currentUrl;
-                    audio.load();
                 }
-
+                
+                audio.load(); // Reload the buffer for the live stream
                 audio.volume = volume;
+                
                 await audio.play();
                 setIsPlaying(true);
             } catch (error) {
