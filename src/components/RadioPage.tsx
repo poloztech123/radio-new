@@ -85,7 +85,6 @@ export function RadioPage() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [volume, setVolume] = useState(0.8);
     const [adText, setAdText] = useState(DEFAULT_AD_TEXT);
-    const [streamUrl, setStreamUrl] = useState(DEFAULT_STREAM_URL);
     const [currentDay, setCurrentDay] = useState('');
     const [isShareSupported, setIsShareSupported] = useState(false);
     const [isPipSupported, setIsPipSupported] = useState(false);
@@ -103,9 +102,9 @@ export function RadioPage() {
                 setAdText(event.newValue);
             }
             if (event.key === STREAM_URL_STORAGE_KEY && event.newValue) {
-                setStreamUrl(event.newValue);
                 if (audioRef.current && isPlaying) {
-                    audioRef.current.src = event.newValue;
+                    const newUrl = event.newValue.trim();
+                    audioRef.current.src = newUrl;
                     audioRef.current.load();
                     audioRef.current.play().catch(console.error);
                 }
@@ -118,9 +117,6 @@ export function RadioPage() {
 
             const storedText = localStorage.getItem(CRAWLING_TEXT_STORAGE_KEY);
             if (storedText) setAdText(storedText);
-
-            const storedUrl = localStorage.getItem(STREAM_URL_STORAGE_KEY);
-            if (storedUrl) setStreamUrl(storedUrl);
 
             const audioEl = document.createElement('audio');
             const isCaptureStreamSupported = typeof (audioEl as any).captureStream === 'function';
@@ -193,7 +189,8 @@ export function RadioPage() {
             setIsLoading(false);
         } else {
             try {
-                const currentUrl = localStorage.getItem(STREAM_URL_STORAGE_KEY) || DEFAULT_STREAM_URL;
+                const storedUrl = localStorage.getItem(STREAM_URL_STORAGE_KEY) || DEFAULT_STREAM_URL;
+                const currentUrl = storedUrl.trim();
                 
                 if (typeof window !== 'undefined' && window.location.protocol === 'https:' && currentUrl.startsWith('http:')) {
                     toast({
@@ -217,7 +214,7 @@ export function RadioPage() {
                 console.error("Playback failed:", error);
                 toast({
                     title: "Playback Error",
-                    description: "The stream could not be played. This could be due to network issues, an invalid URL, or browser restrictions.",
+                    description: "The stream could not be played. Ensure you are using a direct audio link (ends in .mp3 or /stream) and it is using HTTPS.",
                     variant: "destructive",
                 });
                 setIsPlaying(false);
@@ -362,12 +359,12 @@ export function RadioPage() {
                                                 disabled={isLoading}
                                             >
                                                 {isLoading ? (
-                                                  <Loader2 className="w-20 h-20 md:w-24 md:h-24 text-primary animate-spin" />
+                                                  <Loader2 className="w-16 h-16 md:w-20 md:h-20 text-primary animate-spin" />
                                                 ) : (
                                                   isPlaying ? (
-                                                    <Pause className="w-20 h-20 md:w-24 md:h-24 text-primary" />
+                                                    <Pause className="w-16 h-16 md:w-20 md:h-20 text-primary" />
                                                   ) : (
-                                                    <Play className="w-20 h-20 md:w-24 md:h-24 text-primary ml-3" />
+                                                    <Play className="w-16 h-16 md:w-20 md:h-20 text-primary ml-2" />
                                                   )
                                                 )}
                                             </Button>

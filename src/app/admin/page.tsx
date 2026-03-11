@@ -39,8 +39,10 @@ export default function AdminPage() {
   const handleSave = async () => {
     setIsLoading(true);
     try {
+      // Trim the URL to avoid hidden spaces breaking playback
+      const trimmedUrl = streamUrl.trim();
       localStorage.setItem(CRAWLING_TEXT_STORAGE_KEY, crawlingText);
-      localStorage.setItem(STREAM_URL_STORAGE_KEY, streamUrl);
+      localStorage.setItem(STREAM_URL_STORAGE_KEY, trimmedUrl);
       toast({
         title: "Content Saved",
         description: "Admin settings have been updated.",
@@ -84,9 +86,9 @@ export default function AdminPage() {
             <div className="bg-muted p-3 rounded-md border border-border">
                 <p className="text-xs font-semibold uppercase tracking-wider mb-1">Important Instructions:</p>
                 <ul className="text-xs text-muted-foreground list-disc pl-4 space-y-1">
-                    <li>Use <strong>HTTPS</strong> URLs (starting with <code>https://</code>). Browsers often block HTTP streams on secure sites.</li>
+                    <li>Use <strong>HTTPS</strong> URLs (starting with <code>https://</code>). Browsers often block HTTP streams on HTTPS sites.</li>
                     <li>Ensure it is a <strong>direct audio link</strong>. It should usually end in <code>.mp3</code>, <code>.aac</code>, or have <code>/stream</code> at the end.</li>
-                    <li>If using <em>Listen2MyRadio</em>, look for the "Direct Link" in your broadcaster panel.</li>
+                    <li>If using <em>Listen2MyRadio</em>, look for the "Direct Link" in your broadcaster panel. It usually looks like <code>https://...listen2myradio.com/live.mp3...</code></li>
                 </ul>
             </div>
           </div>
