@@ -74,29 +74,17 @@ const INITIAL_SCHEDULE = {
   ],
 };
 
-const PictureInPictureIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <path d="M14.5 9.5 21 3m0 6V3h-6" />
-        <path d="M3 3h18v18H3z" />
-        <path d="m11 15-5 5" />
-    </svg>
-);
-
 export function RadioPage() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [volume, setVolume] = useState(0.8);
     const [adText, setAdText] = useState(DEFAULT_AD_TEXT);
     const [currentDay, setCurrentDay] = useState('');
     const [isShareSupported, setIsShareSupported] = useState(false);
-    const [isPipSupported, setIsPipSupported] = useState(false);
-    const [isPipActive, setIsPipActive] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [logoSrc, setLogoSrc] = useState(placeholders.logo.url);
     const { toast } = useToast();
     
     const audioRef = useRef<HTMLAudioElement>(null);
-    const videoRef = useRef<HTMLVideoElement>(null);
-    const canvasRef = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
         const handleStorageChange = (event: StorageEvent) => {
@@ -119,13 +107,6 @@ export function RadioPage() {
 
             const storedText = localStorage.getItem(CRAWLING_TEXT_STORAGE_KEY);
             if (storedText) setAdText(storedText);
-
-            const audioEl = document.createElement('audio');
-            const isCaptureStreamSupported = typeof (audioEl as any).captureStream === 'function';
-
-            if ('pictureInPictureEnabled' in document && document.pictureInPictureEnabled && isCaptureStreamSupported) {
-                setIsPipSupported(true);
-            }
         }
         
         const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -133,28 +114,12 @@ export function RadioPage() {
         const currentDayName = days[dayIndex];
         setCurrentDay(currentDayName.toLowerCase());
 
-        const video = videoRef.current;
-        if (video) {
-            const onEnterPip = () => setIsPipActive(true);
-            const onLeavePip = () => setIsPipActive(false);
-            video.addEventListener('enterpictureinpicture', onEnterPip);
-            video.addEventListener('leavepictureinpicture', onLeavePip);
-
-            return () => {
-                video.removeEventListener('enterpictureinpicture', onEnterPip);
-                video.removeEventListener('leavepictureinpicture', onLeavePip);
-                if (typeof window !== 'undefined') {
-                    window.removeEventListener('storage', handleStorageChange);
-                }
-            };
-        }
-
         return () => {
              if (typeof window !== 'undefined') {
                 window.removeEventListener('storage', handleStorageChange);
             }
         }
-    }, [isPlaying, logoSrc]);
+    }, [isPlaying]);
 
     const handleShare = async () => {
         const shareData = {
@@ -197,7 +162,7 @@ export function RadioPage() {
                 if (typeof window !== 'undefined' && window.location.protocol === 'https:' && currentUrl.startsWith('http:')) {
                     toast({
                         title: "Security Block",
-                        description: "Your browser blocks HTTP streams on HTTPS sites. Please ensure your URL starts with https://.",
+                        description: "Your browser blocks HTTP streams on HTTPS sites. Please use an HTTPS URL for your stream.",
                         variant: "destructive",
                     });
                     setIsLoading(false);
@@ -217,7 +182,7 @@ export function RadioPage() {
                 console.error("Playback failed:", error);
                 toast({
                     title: "Playback Error",
-                    description: "The stream could not be played. Check your connection or the URL format.",
+                    description: "The stream could not be played. This could be due to network issues, an invalid URL, or browser restrictions.",
                     variant: "destructive",
                 });
                 setIsPlaying(false);
@@ -233,45 +198,6 @@ export function RadioPage() {
         }
     }, [volume]);
 
-    const togglePictureInPicture = async () => {
-        if (!isPipSupported || !videoRef.current || !canvasRef.current || !audioRef.current) return;
-
-        try {
-            if (document.pictureInPictureElement) {
-                await document.exitPictureInPicture();
-            } else {
-                const audio = audioRef.current;
-                const video = videoRef.current;
-                const canvas = canvasRef.current;
-
-                if (typeof (audio as any).captureStream !== 'function') {
-                    toast({ title: "Not Supported", description: "PiP is not supported by your browser.", variant: "destructive" });
-                    return;
-                }
-                
-                const videoStream = canvas.captureStream();
-                video.srcObject = videoStream;
-
-                const ctx = canvas.getContext('2d');
-                if (ctx) {
-                    ctx.fillStyle = 'black';
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    const logo = new window.Image();
-                    logo.crossOrigin = "anonymous";
-                    logo.src = logoSrc;
-                    logo.onload = () => {
-                        ctx.drawImage(logo, 56, 56, 400, 400);
-                    };
-                }
-
-                await video.play();
-                await video.requestPictureInPicture();
-            }
-        } catch (error) {
-            console.error("PiP failed:", error);
-        }
-    };
-
     const VolumeIcon = useMemo(() => {
         if (volume === 0) return VolumeX;
         if (volume < 0.5) return Volume1;
@@ -280,9 +206,7 @@ export function RadioPage() {
 
     return (
         <>
-            <video ref={videoRef} muted style={{ display: 'none' }} playsInline />
             <audio ref={audioRef} preload="auto" />
-            <canvas ref={canvasRef} width="512" height="512" style={{ display: 'none' }}></canvas>
             
             <div className="relative min-h-screen w-full overflow-hidden bg-background text-foreground">
                 <div className="absolute inset-0 -z-10 h-full w-full bg-slate-950 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px]">
@@ -298,32 +222,26 @@ export function RadioPage() {
                               </Button>
                             </Link>
                          </div>
-                         <div className="flex flex-col md:flex-row items-center gap-3 justify-center flex-grow text-center">
-                             <div className="relative w-16 h-16 md:w-20 md:h-20 rounded-lg overflow-hidden border border-border/50 shadow-md bg-muted">
+                         <div className="flex flex-col md:flex-row items-center gap-4 justify-center flex-grow text-center">
+                             <div className="relative w-20 h-20 md:w-32 md:h-32 rounded-lg overflow-hidden border border-border/50 shadow-xl bg-muted group">
                                 <Image 
                                     src={logoSrc} 
                                     alt="Mike Dee Radio Logo" 
-                                    width={80}
-                                    height={80}
+                                    fill
                                     priority
-                                    className="w-full h-full object-cover"
+                                    className="object-cover"
                                     onError={() => setLogoSrc(placeholders.logoFallback.url)}
                                     data-ai-hint="radio station logo"
                                 />
                              </div>
                              <div>
-                                <h1 className="text-2xl md:text-4xl font-bold font-headline tracking-tighter">
+                                <h1 className="text-3xl md:text-5xl font-bold font-headline tracking-tighter">
                                     <span>Mike Dee</span>
                                     <span className="text-primary ml-2">Radio</span>
                                 </h1>
                              </div>
                         </div>
                          <div className="flex items-center gap-2">
-                            {isPipSupported && (
-                                <Button onClick={togglePictureInPicture} variant="outline" size="icon" className="shrink-0" aria-label="Toggle PiP">
-                                    <PictureInPictureIcon className={`h-5 w-5 ${isPipActive ? "text-primary" : ""}`} />
-                                </Button>
-                            )}
                             <Button onClick={handleShare} variant="outline" size="icon" className="shrink-0" aria-label="Share App">
                                {isShareSupported ? <Share2 className="h-5 w-5" /> : <Copy className="h-5 w-5" />}
                             </Button>
@@ -334,7 +252,7 @@ export function RadioPage() {
                         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none z-10 bg-card/10 backdrop-blur-sm pr-2">
                             <Info className="w-5 h-5 text-primary"/>
                         </div>
-                        <div className="whitespace-nowrap ml-8">
+                        <div className="whitespace-nowrap ml-8 overflow-hidden">
                             <span className="inline-block text-xl md:text-2xl text-white font-semibold animate-marquee-slow hover:pause">
                                 {adText.repeat(3)}
                             </span>
@@ -350,7 +268,7 @@ export function RadioPage() {
                                 </CardHeader>
                                 <CardContent className="flex flex-col items-center justify-center gap-6 p-6">
                                     <div className="flex items-center justify-center gap-4">
-                                        <div className="relative w-48 h-48 md:w-80 md:h-80">
+                                        <div className="relative w-64 h-64 md:w-96 md:h-96">
                                             <div className={`absolute inset-0 bg-primary/10 rounded-full transition-transform duration-500 ${isPlaying ? 'animate-pulse scale-110' : 'scale-100'}`}></div>
                                             <Button
                                                 onClick={togglePlayPause}
@@ -361,12 +279,12 @@ export function RadioPage() {
                                                 disabled={isLoading}
                                             >
                                                 {isLoading ? (
-                                                  <Loader2 className="w-32 h-32 md:w-56 md:h-56 text-primary animate-spin" />
+                                                  <Loader2 className="w-40 h-40 md:w-64 md:h-64 text-primary animate-spin" />
                                                 ) : (
                                                   isPlaying ? (
-                                                    <Pause className="w-32 h-32 md:w-56 md:h-56 text-primary fill-primary" />
+                                                    <Pause className="w-40 h-40 md:w-64 md:h-64 text-primary fill-primary" />
                                                   ) : (
-                                                    <Play className="w-32 h-32 md:w-56 md:h-56 text-primary fill-primary ml-4" />
+                                                    <Play className="w-40 h-40 md:w-64 md:h-64 text-primary fill-primary ml-4" />
                                                   )
                                                 )}
                                             </Button>
