@@ -114,6 +114,11 @@ export function RadioPage() {
             } else if (audioRef.current) {
                 audioRef.current.src = DEFAULT_STREAM_URL;
             }
+
+            // Ensure volume is synchronized on mount
+            if (audioRef.current) {
+                audioRef.current.volume = volume;
+            }
         }
         
         const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -126,7 +131,7 @@ export function RadioPage() {
                 window.removeEventListener('storage', handleStorageChange);
             }
         }
-    }, [isPlaying]);
+    }, [isPlaying, volume]);
 
     const handleShare = async () => {
         const shareData = {
@@ -164,32 +169,32 @@ export function RadioPage() {
         } else {
             try {
                 const storedUrl = localStorage.getItem(STREAM_URL_STORAGE_KEY) || DEFAULT_STREAM_URL;
-                const currentUrl = storedUrl.trim();
+                // Add a simple cache buster to force the browser to reconnect to the live stream
+                const currentUrl = `${storedUrl.trim()}${storedUrl.includes('?') ? '&' : '?'}_t=${Date.now()}`;
                 
                 if (typeof window !== 'undefined' && window.location.protocol === 'https:' && currentUrl.startsWith('http:')) {
                     toast({
                         title: "Security Block",
-                        description: "Your browser blocks HTTP streams on HTTPS sites. Please use an HTTPS URL for your stream.",
+                        description: "Your browser blocks HTTP streams on HTTPS sites. Please update your admin setting to an HTTPS stream URL.",
                         variant: "destructive",
                     });
                     setIsLoading(false);
                     return;
                 }
 
-                if (audio.src !== currentUrl) {
-                    audio.src = currentUrl;
-                }
-                
+                // Reset stream to ensure we get a fresh live buffer
+                audio.pause();
+                audio.src = currentUrl;
                 audio.load();
                 audio.volume = volume;
                 
                 await audio.play();
                 setIsPlaying(true);
-            } catch (error) {
+            } catch (error: any) {
                 console.error("Playback failed:", error);
                 toast({
                     title: "Playback Error",
-                    description: "The stream could not be played. Check your URL or network.",
+                    description: error.message || "The stream could not be played. This might be due to a slow connection or an invalid stream link.",
                     variant: "destructive",
                 });
                 setIsPlaying(false);
@@ -213,7 +218,7 @@ export function RadioPage() {
 
     return (
         <>
-            <audio ref={audioRef} preload="auto" />
+            <audio ref={audioRef} preload="none" crossOrigin="anonymous" />
             
             <div className="relative min-h-screen w-full overflow-hidden bg-background text-foreground">
                 <div className="absolute inset-0 -z-10 h-full w-full bg-slate-950 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px]">
@@ -242,14 +247,21 @@ export function RadioPage() {
                                 </h1>
                              </div>
                              
-                             <div className="relative w-36 h-36 md:w-64 md:h-64 rounded-2xl overflow-hidden shadow-2xl border-4 border-primary/30 bg-card/50">
+                             <div className="relative w-48 h-48 md:w-64 md:h-64 rounded-2xl overflow-hidden shadow-2xl border-4 border-primary/30 bg-card/50">
                                 <Image 
                                     src={logoSrc} 
                                     alt="Mike Dee Radio Logo" 
                                     fill 
                                     className="object-cover"
                                     priority
-                                    onError={() => setLogoSrc('https://mikedeeradio.com/images/logo.jpg')}
+                                    onError={() => {
+                                        // Try relative path first, then absolute, then external fallback
+                                        if (logoSrc === placeholders.logo.url) {
+                                            setLogoSrc('./images/logo.jpg');
+                                        } else if (logoSrc === './images/logo.jpg') {
+                                            setLogoSrc('https://mikedeeradio.com/images/logo.jpg');
+                                        }
+                                    }}
                                     data-ai-hint="radio station logo"
                                 />
                              </div>
