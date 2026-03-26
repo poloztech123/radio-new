@@ -249,7 +249,7 @@ export function RadioPage() {
                                     fill 
                                     className="object-cover"
                                     priority
-                                    onError={() => setLogoSrc('https://picsum.photos/seed/radio/600/600')}
+                                    onError={() => setLogoSrc('/images/logo.jpg')}
                                     data-ai-hint="radio station logo"
                                 />
                              </div>
