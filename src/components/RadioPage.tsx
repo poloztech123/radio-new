@@ -14,7 +14,7 @@ import { Slider } from "@/components/ui/slider";
 import placeholders from '@/app/lib/placeholder-images.json';
 
 const DEFAULT_AD_TEXT = "Chali Royal Guest House is Jinja's home away from home, Ghokale Rd. Akwi fashions brings the best out of your looks with their passion in design Iganga road Jinja city. Magnetic looks saloon explains your right to look elegant. Lady Alice Mulooki Rd Jinja. HARED Petroleum has the best pure fuel and oil for your engine and with best services all across the country  ** Contact Mike Dee for your radio set up, Website design, App development, Music instrument lessons, DJ lessons, presentation lessons. For graphics design lessons and website development lessons contact us at Mike Dee Radio. Contact Mike Dee for any coverage and product marketing. Let's help you see results instantly. Send your info that you would like to be aired on our WhatsApp 075 666 04 05. Opinions, regards, debates e.t.c. Nuwa electronics on Kutch road behind lukanga plaza is the leading source of all spare parts for TV, radios, amplifiers, computers, mixers, DVDs. They also have new electronic equipment and all accessories.call 0755293504 / 0779537263. Butterfly fumigation and cleaning, slashing, sewage unblocking call 0702418492. Listen to the radio for details. Mob Tech: Your One-Stop Phone Centre We offer hire purchase on all phones 0702648160 or 0753373833  ";
-const DEFAULT_STREAM_URL = "https://uk20freenew.listen2myradio.com/live.mp3?typeportmount=s1_21833_stream_57657585";
+const DEFAULT_STREAM_URL = "https://uk20freenew.listen2myradio.com/live.mp3?typeportmount=s1_21833_stream_409303646";
 const CRAWLING_TEXT_STORAGE_KEY = 'crawlingText';
 const STREAM_URL_STORAGE_KEY = 'streamUrl';
 
@@ -182,7 +182,7 @@ export function RadioPage() {
                 console.error("Playback failed:", error);
                 toast({
                     title: "Playback Error",
-                    description: "The stream could not be played. This could be due to network issues, an invalid URL, or browser restrictions.",
+                    description: "",
                     variant: "destructive",
                 });
                 setIsPlaying(false);
