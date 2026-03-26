@@ -226,16 +226,16 @@ export function RadioPage() {
                             </Button>
                          </div>
                          
-                         <div className="flex flex-col items-center gap-6">
+                         <div className="flex flex-col items-center gap-2">
                              <div className="flex items-center justify-center gap-4">
                                 <Radio className="h-10 w-10 md:h-14 md:w-14 text-primary" />
-                                <h1 className="text-5xl md:text-7xl font-bold font-headline tracking-tighter">
+                                <h1 className="text-4xl md:text-6xl font-bold font-headline tracking-tighter">
                                     <span>Mike Dee</span>
                                     <span className="text-primary ml-3">Radio</span>
                                 </h1>
                              </div>
                              
-                             <div className="relative w-40 h-40 md:w-64 md:h-64 rounded-2xl overflow-hidden border-2 border-primary/20 shadow-2xl bg-muted">
+                             <div className="relative w-6 h-6 md:w-8 md:h-8 rounded-full overflow-hidden border border-primary/20 shadow-sm bg-muted">
                                 <Image 
                                     src={logoSrc} 
                                     alt="Mike Dee Radio Logo" 
@@ -268,23 +268,23 @@ export function RadioPage() {
                                 </CardHeader>
                                 <CardContent className="flex flex-col items-center justify-center gap-8 p-8">
                                     <div className="flex items-center justify-center gap-4">
-                                        <div className="relative w-48 h-48 md:w-64 md:h-64">
+                                        <div className="relative w-32 h-32 md:w-48 md:h-48">
                                             <div className={`absolute inset-0 bg-primary/10 rounded-full transition-transform duration-500 ${isPlaying ? 'animate-pulse scale-110' : 'scale-100'}`}></div>
                                             <Button
                                                 onClick={togglePlayPause}
                                                 variant="outline"
                                                 size="icon"
-                                                className="relative z-10 w-full h-full rounded-full hover:bg-background/80 border-4 border-primary shadow-[0_0_50px_10px_rgba(249,115,22,0.3)] transition-transform hover:scale-105 flex items-center justify-center bg-card/50"
+                                                className="relative z-10 w-full h-full rounded-full hover:bg-background/80 border-4 border-primary shadow-[0_0_40px_8px_rgba(249,115,22,0.3)] transition-transform hover:scale-105 flex items-center justify-center bg-card/50"
                                                 aria-label={isPlaying ? 'Pause' : 'Play'}
                                                 disabled={isLoading}
                                             >
                                                 {isLoading ? (
-                                                  <Loader2 className="w-24 h-24 md:w-32 md:h-32 text-primary animate-spin" />
+                                                  <Loader2 className="w-16 h-16 md:w-24 md:h-24 text-primary animate-spin" />
                                                 ) : (
                                                   isPlaying ? (
-                                                    <Pause className="w-24 h-24 md:w-32 md:h-32 text-primary fill-primary" />
+                                                    <Pause className="w-16 h-16 md:w-24 md:h-24 text-primary fill-primary" />
                                                   ) : (
-                                                    <Play className="w-24 h-24 md:w-32 md:h-32 text-primary fill-primary ml-2" />
+                                                    <Play className="w-16 h-16 md:w-24 md:h-24 text-primary fill-primary ml-2" />
                                                   )
                                                 )}
                                             </Button>
