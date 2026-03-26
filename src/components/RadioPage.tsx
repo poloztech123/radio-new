@@ -249,7 +249,7 @@ export function RadioPage() {
                                     fill 
                                     className="object-cover"
                                     priority
-                                    onError={() => setLogoSrc('https://mikedeeradio.com/images/mike%20dee.jpg')}
+                                    onError={() => setLogoSrc('https://mikedeeradio.com/images/logo.jpg')}
                                     data-ai-hint="radio station logo"
                                 />
                              </div>
