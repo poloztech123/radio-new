@@ -182,7 +182,7 @@ export function RadioPage() {
                 console.error("Playback failed:", error);
                 toast({
                     title: "Playback Error",
-                    description: "",
+                    description: "The stream could not be played. Check your URL or network.",
                     variant: "destructive",
                 });
                 setIsPlaying(false);
@@ -214,23 +214,28 @@ export function RadioPage() {
                 </div>
                 
                 <main className="p-4 sm:p-6 lg:p-8">
-                    <header className="flex justify-between items-start mb-6 max-w-5xl mx-auto gap-4">
-                         <div className="flex items-center pt-2">
+                    <header className="flex flex-col items-center justify-center mb-10 max-w-5xl mx-auto gap-6 text-center">
+                         <div className="w-full flex justify-between items-center">
                             <Link href="/login">
                               <Button variant="ghost" size="icon" aria-label="Admin Login">
                                 <User className="h-6 w-6" />
                               </Button>
                             </Link>
+                            <Button onClick={handleShare} variant="outline" size="icon" className="shrink-0" aria-label="Share App">
+                               {isShareSupported ? <Share2 className="h-5 w-5" /> : <Copy className="h-5 w-5" />}
+                            </Button>
                          </div>
-                         <div className="flex flex-col items-center gap-4 justify-center flex-grow text-center">
-                             <div className="flex items-center justify-center gap-3">
-                                <Radio className="h-8 w-8 md:h-12 md:w-12 text-primary" />
-                                <h1 className="text-4xl md:text-6xl font-bold font-headline tracking-tighter">
+                         
+                         <div className="flex flex-col items-center gap-6">
+                             <div className="flex items-center justify-center gap-4">
+                                <Radio className="h-10 w-10 md:h-14 md:w-14 text-primary" />
+                                <h1 className="text-5xl md:text-7xl font-bold font-headline tracking-tighter">
                                     <span>Mike Dee</span>
-                                    <span className="text-primary ml-2">Radio</span>
+                                    <span className="text-primary ml-3">Radio</span>
                                 </h1>
                              </div>
-                             <div className="relative w-32 h-32 md:w-56 md:h-56 rounded-2xl overflow-hidden border-2 border-primary/20 shadow-2xl bg-muted group mt-2">
+                             
+                             <div className="relative w-40 h-40 md:w-64 md:h-64 rounded-2xl overflow-hidden border-2 border-primary/20 shadow-2xl bg-muted">
                                 <Image 
                                     src={logoSrc} 
                                     alt="Mike Dee Radio Logo" 
@@ -238,18 +243,12 @@ export function RadioPage() {
                                     priority
                                     className="object-cover"
                                     onError={() => setLogoSrc(placeholders.logoFallback.url)}
-                                    data-ai-hint="radio station logo"
                                 />
                              </div>
                         </div>
-                         <div className="flex items-center gap-2 pt-2">
-                            <Button onClick={handleShare} variant="outline" size="icon" className="shrink-0" aria-label="Share App">
-                               {isShareSupported ? <Share2 className="h-5 w-5" /> : <Copy className="h-5 w-5" />}
-                            </Button>
-                        </div>
                     </header>
 
-                    <div className="relative max-w-4xl mx-auto overflow-hidden bg-card/70 backdrop-blur-lg rounded-lg p-3 border border-border/50 shadow-lg shadow-black/20 mb-8">
+                    <div className="relative max-w-4xl mx-auto overflow-hidden bg-card/70 backdrop-blur-lg rounded-lg p-3 border border-border/50 shadow-lg shadow-black/20 mb-10">
                         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none z-10 bg-card/10 backdrop-blur-sm pr-2">
                             <Info className="w-5 h-5 text-primary"/>
                         </div>
@@ -260,32 +259,32 @@ export function RadioPage() {
                         </div>                        
                     </div>
 
-                    <div className="flex flex-col gap-8 items-center max-w-6xl mx-auto">
+                    <div className="flex flex-col gap-10 items-center max-w-6xl mx-auto">
                         <div className="w-full max-w-md">
                             <Card className="bg-card/70 backdrop-blur-lg border-border/50 shadow-2xl shadow-black/20">
                                 <CardHeader className="text-center">
                                     <CardTitle className="font-headline text-2xl md:text-3xl">Making Life Interesting</CardTitle>
                                     <CardDescription>Streaming Worldwide 24/7</CardDescription>
                                 </CardHeader>
-                                <CardContent className="flex flex-col items-center justify-center gap-6 p-6">
+                                <CardContent className="flex flex-col items-center justify-center gap-8 p-8">
                                     <div className="flex items-center justify-center gap-4">
-                                        <div className="relative w-64 h-64 md:w-96 md:h-96">
+                                        <div className="relative w-48 h-48 md:w-64 md:h-64">
                                             <div className={`absolute inset-0 bg-primary/10 rounded-full transition-transform duration-500 ${isPlaying ? 'animate-pulse scale-110' : 'scale-100'}`}></div>
                                             <Button
                                                 onClick={togglePlayPause}
                                                 variant="outline"
                                                 size="icon"
-                                                className="relative z-10 w-full h-full rounded-full hover:bg-background/80 border-4 border-primary shadow-[0_0_80px_20px_rgba(249,115,22,0.4)] transition-transform hover:scale-105 flex items-center justify-center bg-card/50"
+                                                className="relative z-10 w-full h-full rounded-full hover:bg-background/80 border-4 border-primary shadow-[0_0_50px_10px_rgba(249,115,22,0.3)] transition-transform hover:scale-105 flex items-center justify-center bg-card/50"
                                                 aria-label={isPlaying ? 'Pause' : 'Play'}
                                                 disabled={isLoading}
                                             >
                                                 {isLoading ? (
-                                                  <Loader2 className="w-40 h-40 md:w-64 md:h-64 text-primary animate-spin" />
+                                                  <Loader2 className="w-24 h-24 md:w-32 md:h-32 text-primary animate-spin" />
                                                 ) : (
                                                   isPlaying ? (
-                                                    <Pause className="w-40 h-40 md:w-64 md:h-64 text-primary fill-primary" />
+                                                    <Pause className="w-24 h-24 md:w-32 md:h-32 text-primary fill-primary" />
                                                   ) : (
-                                                    <Play className="w-40 h-40 md:w-64 md:h-64 text-primary fill-primary ml-4" />
+                                                    <Play className="w-24 h-24 md:w-32 md:h-32 text-primary fill-primary ml-2" />
                                                   )
                                                 )}
                                             </Button>
