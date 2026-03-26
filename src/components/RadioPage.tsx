@@ -14,7 +14,7 @@ import { Slider } from "@/components/ui/slider";
 import placeholders from '@/app/lib/placeholder-images.json';
 
 const DEFAULT_AD_TEXT = "Chali Royal Guest House is Jinja's home away from home, Ghokale Rd. Akwi fashions brings the best out of your looks with their passion in design Iganga road Jinja city. Magnetic looks saloon explains your right to look elegant. Lady Alice Mulooki Rd Jinja. HARED Petroleum has the best pure fuel and oil for your engine and with best services all across the country  ** Contact Mike Dee for your radio set up, Website design, App development, Music instrument lessons, DJ lessons, presentation lessons. For graphics design lessons and website development lessons contact us at Mike Dee Radio. Contact Mike Dee for any coverage and product marketing. Let's help you see results instantly. Send your info that you would like to be aired on our WhatsApp 075 666 04 05. Opinions, regards, debates e.t.c. Nuwa electronics on Kutch road behind lukanga plaza is the leading source of all spare parts for TV, radios, amplifiers, computers, mixers, DVDs. They also have new electronic equipment and all accessories.call 0755293504 / 0779537263. Butterfly fumigation and cleaning, slashing, sewage unblocking call 0702418492. Listen to the radio for details. Mob Tech: Your One-Stop Phone Centre We offer hire purchase on all phones 0702648160 or 0753373833  ";
-const DEFAULT_STREAM_URL = "https://uk20freenew.listen2myradio.com/live.mp3?typeportmount=s1_21833_stream_409303646";
+const DEFAULT_STREAM_URL = "https://uk20freenew.listen2myradio.com/live.mp3?typeportmount=s1_21833_stream_57657585";
 const CRAWLING_TEXT_STORAGE_KEY = 'crawlingText';
 const STREAM_URL_STORAGE_KEY = 'streamUrl';
 
@@ -107,6 +107,13 @@ export function RadioPage() {
 
             const storedText = localStorage.getItem(CRAWLING_TEXT_STORAGE_KEY);
             if (storedText) setAdText(storedText);
+            
+            const storedUrl = localStorage.getItem(STREAM_URL_STORAGE_KEY);
+            if (storedUrl && audioRef.current) {
+                audioRef.current.src = storedUrl.trim();
+            } else if (audioRef.current) {
+                audioRef.current.src = DEFAULT_STREAM_URL;
+            }
         }
         
         const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -214,7 +221,7 @@ export function RadioPage() {
                 </div>
                 
                 <main className="p-4 sm:p-6 lg:p-8">
-                    <header className="flex flex-col items-center justify-center mb-10 max-w-5xl mx-auto gap-6 text-center">
+                    <header className="flex flex-col items-center justify-center mb-10 max-w-5xl mx-auto gap-8 text-center">
                          <div className="w-full flex justify-between items-center">
                             <Link href="/login">
                               <Button variant="ghost" size="icon" aria-label="Admin Login">
@@ -235,14 +242,15 @@ export function RadioPage() {
                                 </h1>
                              </div>
                              
-                             <div className="relative w-40 h-40 md:w-56 md:h-56 rounded-lg overflow-hidden border border-primary/20 shadow-xl bg-muted">
+                             <div className="relative w-48 h-48 md:w-64 md:h-64 rounded-2xl overflow-hidden shadow-2xl border-4 border-primary/30 bg-card/50">
                                 <Image 
                                     src={logoSrc} 
                                     alt="Mike Dee Radio Logo" 
-                                    fill
-                                    priority
+                                    fill 
                                     className="object-cover"
-                                    onError={() => setLogoSrc(placeholders.logoFallback.url)}
+                                    priority
+                                    onError={() => setLogoSrc('https://picsum.photos/seed/radio/600/600')}
+                                    data-ai-hint="radio station logo"
                                 />
                              </div>
                         </div>
@@ -268,7 +276,7 @@ export function RadioPage() {
                                 </CardHeader>
                                 <CardContent className="flex flex-col items-center justify-center gap-8 p-8">
                                     <div className="flex items-center justify-center gap-4">
-                                        <div className="relative w-32 h-32 md:w-48 md:h-48">
+                                        <div className="relative w-32 h-32 md:w-40 md:h-40">
                                             <div className={`absolute inset-0 bg-primary/10 rounded-full transition-transform duration-500 ${isPlaying ? 'animate-pulse scale-110' : 'scale-100'}`}></div>
                                             <Button
                                                 onClick={togglePlayPause}
@@ -279,12 +287,12 @@ export function RadioPage() {
                                                 disabled={isLoading}
                                             >
                                                 {isLoading ? (
-                                                  <Loader2 className="w-16 h-16 md:w-24 md:h-24 text-primary animate-spin" />
+                                                  <Loader2 className="w-12 h-12 md:w-16 md:h-16 text-primary animate-spin" />
                                                 ) : (
                                                   isPlaying ? (
-                                                    <Pause className="w-16 h-16 md:w-24 md:h-24 text-primary fill-primary" />
+                                                    <Pause className="w-12 h-12 md:w-16 md:h-16 text-primary fill-primary" />
                                                   ) : (
-                                                    <Play className="w-16 h-16 md:w-24 md:h-24 text-primary fill-primary ml-2" />
+                                                    <Play className="w-12 h-12 md:w-16 md:h-16 text-primary fill-primary ml-2" />
                                                   )
                                                 )}
                                             </Button>

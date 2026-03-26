@@ -1,15 +1,9 @@
 
 {
   "logo": {
-    "url": "/images/logo.png",
-    "width": 400,
-    "height": 400,
-    "hint": "radio logo"
-  },
-  "logoFallback": {
-    "url": "https://picsum.photos/seed/radio1/400/400",
-    "width": 400,
-    "height": 400,
-    "hint": "radio station"
+    "url": "/images/logo.jpg",
+    "width": 600,
+    "height": 600,
+    "hint": "radio station logo"
   }
 }
