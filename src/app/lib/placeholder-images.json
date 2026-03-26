@@ -2,8 +2,8 @@
 {
   "logo": {
     "url": "/images/logo.jpg",
-    "width": 600,
-    "height": 600,
+    "width": 400,
+    "height": 400,
     "hint": "radio station logo"
   }
 }

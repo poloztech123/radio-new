@@ -242,7 +242,7 @@ export function RadioPage() {
                                 </h1>
                              </div>
                              
-                             <div className="relative w-48 h-48 md:w-64 md:h-64 rounded-2xl overflow-hidden shadow-2xl border-4 border-primary/30 bg-card/50">
+                             <div className="relative w-36 h-36 md:w-64 md:h-64 rounded-2xl overflow-hidden shadow-2xl border-4 border-primary/30 bg-card/50">
                                 <Image 
                                     src={logoSrc} 
                                     alt="Mike Dee Radio Logo" 
